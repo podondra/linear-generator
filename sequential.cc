@@ -49,7 +49,7 @@ unsigned int hamming_distance(unsigned int x, unsigned int y) {
 }
 
 double compute(
-        int **linear_generators,
+        unsigned int **linear_generators,
         unsigned int num,
         unsigned int k,
         unsigned int c,
@@ -60,6 +60,7 @@ double compute(
     std::chrono::high_resolution_clock::time_point start, end;
     start = std::chrono::high_resolution_clock::now();
 
+    /* for each linear generator */
     for (unsigned int i = 0; i < num; ++i) {
         unsigned int a = linear_generators[i][0];
         unsigned int b = linear_generators[i][1];
@@ -109,17 +110,17 @@ void print_usage() {
 }
 
 /* read input from file */
-int** read_linear_generators(char *filename, int &num) {
+unsigned int **read_linear_generators(char *filename, unsigned int &num) {
     FILE *fp = fopen(filename, "r");
     if (fp == nullptr)
         return nullptr;
 
-    fscanf(fp, "%d", &num);
+    fscanf(fp, "%u", &num);
 
-    int **arr = new int*[num];
-    for (int i = 0; i < num; ++i) {
-        arr[i] = new int[3];
-        fscanf(fp, "%d%d%d", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
+    unsigned int **arr = new unsigned int*[num];
+    for (unsigned int i = 0; i < num; ++i) {
+        arr[i] = new unsigned int[3];
+        fscanf(fp, "%u%u%u", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
     }
 
     fclose(fp);
@@ -133,15 +134,14 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    /* TODO check them and types */
     long int k = strtol(argv[2], nullptr, 10);
     long int c = strtol(argv[3], nullptr, 10);
     long int d = strtol(argv[4], nullptr, 10);
     long int e = strtol(argv[5], nullptr, 10);
 
     /* read linear generators */
-    int num;
-    int **linear_generators = read_linear_generators(argv[1], num);
+    unsigned int num;
+    unsigned int **linear_generators = read_linear_generators(argv[1], num);
     if (linear_generators == nullptr) {
         printf("cannot read the FILE\n");
         return EXIT_FAILURE;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
     printf("%lf\n", compute(linear_generators, num, k, c, d, e));
 
     /* free array with linear generators */
-    for (int i = 0; i < num; ++i)
+    for (unsigned int i = 0; i < num; ++i)
         delete [] linear_generators[i];
     delete [] linear_generators;
 
