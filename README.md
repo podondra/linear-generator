@@ -1,7 +1,5 @@
 # LINEARNI GENERATORY
 
-TODO translation
-
 Mejme nekolik (_G_, pozor muze to byt i cislo v radech milionu) danych
 linearnich generatoru, kazdy z nich je dan parametry _a_, _b_, _n_. Generator
 vypocitava posloupnost _x[i] = (a * x[i - 1] + b) mod 2 ^ n_, kde _a_ a _b_ jsou
@@ -13,7 +11,7 @@ konstanty _c_, _d_, _e_ (pro vsechny generatory stejne), najit:
 - kolik je pro dany generator minimálni a maximalni Hammingova vzdalenost mezi
   _x[i]_ a parametrem _e_
 
-## UKOL
+## UKOLY
 
 - loop unrolling
 - loop tiling
