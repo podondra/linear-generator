@@ -1,9 +1,11 @@
 SHELL = /bin/sh
 CXX = g++
-CXXFLAGS = -Wall -O3
+CXXFLAGS = -std=c++11 -Wall -O3
 
-all: sequential.cc
-	$(CXX) -std=c++11 -fdiagnostics-color $(CXXFLAGS) $<
+all: sequential
+	
+sequential: sequential.cc
+	$(CXX) -fdiagnostics-color $(CXXFLAGS) $< -o sequential
 
-run: all
-	./a.out
+clean:
+	$(RM) sequential

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <chrono>
 
@@ -14,7 +15,7 @@ unsigned int linear_generator(
         unsigned long long int a,
         unsigned long long int prev,
         unsigned long long int b,
-        unsigned int n
+        unsigned long long int n
         ) {
     /*
      * unsigned long long int because of the (a * prev + b)
@@ -47,52 +48,44 @@ unsigned int hamming_distance(unsigned int x, unsigned int y) {
     return distance;
 }
 
-int main(int argc, char *argv[]) {
-    /* TODO input parameters and input data */
-    unsigned int a = 9;
-    unsigned int b = 15;
-    unsigned int n = 31;
-
-    unsigned int k = 10000000;
-    unsigned int c = 41832;
-    unsigned int d = 321832;
-    unsigned int e = 94321;
-
-    /* input checks */
-    if (a % 2 == 0 && b % 2 == 0) {
-        printf("a and b must be odd numbers\n");
-        return 1;
-    }
-    if (c > d) {
-        printf("c must be less then or equal to d\n");
-        return 1;
-    }
-
-    unsigned int x = 0;
-    unsigned int count_in_interval = 0;
-    unsigned int min_distance = UINT_MAX, max_distance = 0;
-    unsigned int distance;
-    
+double compute(
+        int **linear_generators,
+        unsigned int num,
+        unsigned int k,
+        unsigned int c,
+        unsigned int d,
+        unsigned int e
+        ) {
     /* start time measurement */
     std::chrono::high_resolution_clock::time_point start, end;
     start = std::chrono::high_resolution_clock::now();
 
-    for (unsigned int i = 0; i < k; ++i) {
-        /* compute next value */
-        x = linear_generator(a, x, b, n);
+    for (unsigned int i = 0; i < num; ++i) {
+        unsigned int a = linear_generators[i][0];
+        unsigned int b = linear_generators[i][1];
+        unsigned int n = linear_generators[i][2];
+        unsigned int x = 0;
+        unsigned int count_in_interval = 0;
+        unsigned int min_distance = UINT_MAX, max_distance = 0;
+        unsigned int distance;
+    
+        for (unsigned int j = 0; j < k; ++j) {
+            /* compute next value */
+            x = linear_generator(a, x, b, n);
 
-        /* check if x is in interval */
-        if (is_in_interval(x, c, d))
-            ++count_in_interval;
+            /* check if x is in interval */
+            if (is_in_interval(x, c, d))
+                ++count_in_interval;
 
-        /* compute hamming distance */
-        distance = hamming_distance(x, e);
-        /* check minimal hamming distance */
-        if (min_distance > distance)
-            min_distance = distance;
-        /* check maximal hamming distance */
-        if (max_distance < distance)
-            max_distance = distance;
+            /* compute hamming distance */
+            distance = hamming_distance(x, e);
+            /* check minimal hamming distance */
+            if (min_distance > distance)
+                min_distance = distance;
+            /* check maximal hamming distance */
+            if (max_distance < distance)
+                max_distance = distance;
+        }
     }
 
     /* end time measurement */
@@ -103,7 +96,64 @@ int main(int argc, char *argv[]) {
             end - start
             );
 
-    printf("%lf\n", time_span.count());
+    return time_span.count();
+}
+
+/*
+ * TODO
+ * display better usage
+ * use getopt
+ */
+void print_usage() {
+    printf("./a.out FILE K C D E\n");
+}
+
+/* read input from file */
+int** read_linear_generators(char *filename, int &num) {
+    FILE *fp = fopen(filename, "r");
+    if (fp == nullptr)
+        return nullptr;
+
+    fscanf(fp, "%d", &num);
+
+    int **arr = new int*[num];
+    for (int i = 0; i < num; ++i) {
+        arr[i] = new int[3];
+        fscanf(fp, "%d%d%d", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
+    }
+
+    fclose(fp);
+    
+    return arr;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 6) {
+        print_usage();
+        return EXIT_FAILURE;
+    }
+
+    /* TODO check them and types */
+    long int k = strtol(argv[2], nullptr, 10);
+    long int c = strtol(argv[3], nullptr, 10);
+    long int d = strtol(argv[4], nullptr, 10);
+    long int e = strtol(argv[5], nullptr, 10);
+
+    /* read linear generators */
+    int num;
+    int **linear_generators = read_linear_generators(argv[1], num);
+    if (linear_generators == nullptr) {
+        printf("cannot read the FILE\n");
+        return EXIT_FAILURE;
+    }
+
+    /* start and print time of computation */
+    printf("%lf\n", compute(linear_generators, num, k, c, d, e));
+
+    /* free array with linear generators */
+    for (int i = 0; i < num; ++i)
+        delete [] linear_generators[i];
+    delete [] linear_generators;
 
     return 0;
 }
