@@ -48,6 +48,10 @@ unsigned int hamming_distance(unsigned int x, unsigned int y) {
     return distance;
 }
 
+/*
+ * this function execute the computation
+ * return time as double
+ */
 double compute(
         unsigned int **linear_generators,
         unsigned int num,
@@ -106,12 +110,16 @@ double compute(
 }
 
 /*
- * TODO
  * display better usage
  * use getopt
  */
-void print_usage() {
-    printf("./a.out FILE K C D E\n");
+void usage() {
+    printf("usage: ./a.out FILE K C D E\n"
+            "\tFILE\tfilename of input data\n"
+            "\tK\tnumbers in sequence\n"
+            "\tC\tstart of interval\n"
+            "\tD\tend of interval\n"
+            "\tE\tparameter for computing Hamming distance\n");
 }
 
 /* read input from file */
@@ -120,8 +128,13 @@ unsigned int **read_linear_generators(char *filename, unsigned int &num) {
     if (fp == nullptr)
         return nullptr;
 
+    /* first in file is number of linear generators */
     fscanf(fp, "%u", &num);
 
+    /*
+     * then there in num of lines each containing three numbers
+     * a, b, c separated by spaces
+     */
     unsigned int **arr = new unsigned int*[num];
     for (unsigned int i = 0; i < num; ++i) {
         arr[i] = new unsigned int[3];
@@ -135,7 +148,7 @@ unsigned int **read_linear_generators(char *filename, unsigned int &num) {
 
 int main(int argc, char *argv[]) {
     if (argc != 6) {
-        print_usage();
+        usage();
         return EXIT_FAILURE;
     }
 
@@ -160,5 +173,5 @@ int main(int argc, char *argv[]) {
         delete [] linear_generators[i];
     delete [] linear_generators;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
