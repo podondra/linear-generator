@@ -56,19 +56,24 @@ double compute(
         unsigned int d,
         unsigned int e
         ) {
-    /* start time measurement */
     std::chrono::high_resolution_clock::time_point start, end;
+    /* start time measurement */
     start = std::chrono::high_resolution_clock::now();
 
+    unsigned int a, b, n;
+    unsigned int x;
+    unsigned int count_in_interval;
+    unsigned int min_distance, max_distance;
+    unsigned int distance;
     /* for each linear generator */
     for (unsigned int i = 0; i < num; ++i) {
-        unsigned int a = linear_generators[i][0];
-        unsigned int b = linear_generators[i][1];
-        unsigned int n = linear_generators[i][2];
-        unsigned int x = 0;
-        unsigned int count_in_interval = 0;
-        unsigned int min_distance = UINT_MAX, max_distance = 0;
-        unsigned int distance;
+        a = linear_generators[i][0];
+        b = linear_generators[i][1];
+        n = linear_generators[i][2];
+        x = 0;
+        count_in_interval = 0;
+        min_distance = UINT_MAX;
+        max_distance = 0;
     
         for (unsigned int j = 0; j < k; ++j) {
             /* compute next value */
