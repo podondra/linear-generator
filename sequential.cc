@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <limits.h>
+
 #include <chrono>
 
 /*
@@ -48,18 +48,38 @@ unsigned int hamming_distance(unsigned int x, unsigned int y) {
     return distance;
 }
 
-/*
- * this function execute the computation
- * return time as double
- */
-double compute(
-        unsigned int **linear_generators,
-        unsigned int num,
-        unsigned int k,
-        unsigned int c,
-        unsigned int d,
-        unsigned int e
-        ) {
+/* parse input */
+unsigned int **read_sequential(FILE *file, unsigned int &num) {
+    /* first in file is number of linear generators */
+    fscanf(file, "%u", &num);
+
+    /*
+     * then there in num of lines each containing three numbers
+     * a, b, c separated by spaces
+     */
+    unsigned int **arr = new unsigned int*[num];
+    if (arr == nullptr)
+        return nullptr;
+    for (unsigned int i = 0; i < num; ++i) {
+        arr[i] = new unsigned int[3];
+        if (arr[i] == nullptr)
+            return nullptr;
+        fscanf(file, "%u%u%u", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
+    }
+
+    return arr;
+}
+
+double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
+        unsigned int e) {
+    /* read linear generators */
+    unsigned int num;
+    unsigned int **linear_generators = read_sequential(input, num);
+    if (linear_generators == nullptr) {
+        fprintf(stderr, "Input file reading error.\n");
+        return 0;
+    }
+
     std::chrono::high_resolution_clock::time_point start, end;
     /* start time measurement */
     start = std::chrono::high_resolution_clock::now();
@@ -106,72 +126,10 @@ double compute(
             end - start
             );
 
-    return time_span.count();
-}
-
-/*
- * display better usage
- * use getopt
- */
-void usage() {
-    printf("usage: ./a.out FILE K C D E\n"
-            "\tFILE\tfilename of input data\n"
-            "\tK\tnumbers in sequence\n"
-            "\tC\tstart of interval\n"
-            "\tD\tend of interval\n"
-            "\tE\tparameter for computing Hamming distance\n");
-}
-
-/* read input from file */
-unsigned int **read_linear_generators(char *filename, unsigned int &num) {
-    FILE *fp = fopen(filename, "r");
-    if (fp == nullptr)
-        return nullptr;
-
-    /* first in file is number of linear generators */
-    fscanf(fp, "%u", &num);
-
-    /*
-     * then there in num of lines each containing three numbers
-     * a, b, c separated by spaces
-     */
-    unsigned int **arr = new unsigned int*[num];
-    for (unsigned int i = 0; i < num; ++i) {
-        arr[i] = new unsigned int[3];
-        fscanf(fp, "%u%u%u", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
-    }
-
-    fclose(fp);
-    
-    return arr;
-}
-
-int main(int argc, char *argv[]) {
-    if (argc != 6) {
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    long int k = strtol(argv[2], nullptr, 10);
-    long int c = strtol(argv[3], nullptr, 10);
-    long int d = strtol(argv[4], nullptr, 10);
-    long int e = strtol(argv[5], nullptr, 10);
-
-    /* read linear generators */
-    unsigned int num;
-    unsigned int **linear_generators = read_linear_generators(argv[1], num);
-    if (linear_generators == nullptr) {
-        printf("cannot read the FILE\n");
-        return EXIT_FAILURE;
-    }
-
-    /* start and print time of computation */
-    printf("%lf\n", compute(linear_generators, num, k, c, d, e));
-
     /* free array with linear generators */
     for (unsigned int i = 0; i < num; ++i)
         delete [] linear_generators[i];
     delete [] linear_generators;
 
-    return EXIT_SUCCESS;
+    return time_span.count();
 }

@@ -1,11 +1,18 @@
 SHELL = /bin/sh
-CXX = g++
-CXXFLAGS = -std=c++11 -Wall -O3
+CXX = g++ -std=c++11
+CXXFLAGS = -O3
+DIAGNOSTICS = -fdiagnostics-color -Wall
 
-all: sequential
+all: linear-generator
 
-sequential: sequential.cc
-	$(CXX) -fdiagnostics-color $(CXXFLAGS) $< -o sequential
+linear-generator: linear-generator.o sequential.o
+	$(CXX) $(DIAGNOSTICS) $^ -o linear-generator
+
+linear-generator.o: linear-generator.cc sequential.h
+	$(CXX) -c $(CXXFLAGS) $(DIAGNOSTICS) $<
+
+sequential.o: sequential.cc
+	$(CXX) -c $(CXXFLAGS) $(DIAGNOSTICS) $<
 
 clean:
-	$(RM) sequential
+	$(RM) linear-generator *.o
