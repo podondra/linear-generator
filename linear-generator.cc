@@ -1,13 +1,15 @@
+#include <stdint.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
 
 #include "sequential.h"
+#include "optimize.h"
 
 /* display better usage */
 void usage(FILE *output) {
     fprintf(output,
-            "Usage: ./linear-generator [VARIANT] PARAMS FILE\n"
+            "Usage: ./linear-generator [VARIANT] PARAMS FILE 2> /dev/null\n"
             "Use VARIANT of solution to compute input from FILE with PARAMS.\n"
             "\n"
             "Variant of solution is one of:\n"
@@ -25,10 +27,10 @@ void usage(FILE *output) {
 
 int main(int argc, char *argv[]) {
     int variant_flag = 0;
-    long int k = -1;
-    long int c = -1;
-    long int d = -1;
-    long int e = -1;
+    int32_t k = -1;
+    int32_t c = -1;
+    int32_t d = -1;
+    int32_t e = -1;
 
     /* getopt */
     while (true) {
@@ -85,7 +87,7 @@ int main(int argc, char *argv[]) {
     /* open input file */
     FILE *input = fopen(argv[argc - 1], "r");
     if (input == nullptr) {
-        fprintf(stderr, "Cannot open input file.\n");
+        fprintf(stdout, "Cannot open input file.\n");
         usage(stderr);
         return EXIT_FAILURE;
     }
@@ -96,14 +98,14 @@ int main(int argc, char *argv[]) {
             time = sequential(input, k, c, d, e);
             break;
         case 1:
-            printf("not implemented yet\n");
+            time = optimize(input, k, c, d, e);
             break;
         case 2:
-            printf("not implemented yet\n");
+            fprintf(stdout, "not implemented yet\n");
             break;
     }
     if (time != 0)
-        printf("%lf\n", time);
+        fprintf(stdout, "%lf\n", time);
 
     /* close input file */
     fclose(input);

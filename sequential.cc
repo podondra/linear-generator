@@ -1,5 +1,6 @@
-#include <stdio.h>
+#include <inttypes.h>
 #include <limits.h>
+#include <stdio.h>
 
 #include <chrono>
 
@@ -11,15 +12,10 @@
  * 0 < a, b < 2 ^ n, (b cannot be 0)
  * x[0] = 0, (seed)
  */
-unsigned int linear_generator(
-        unsigned long long int a,
-        unsigned long long int prev,
-        unsigned long long int b,
-        unsigned long long int n
-        ) {
+uint32_t linear_generator(uint64_t a, uint64_t prev, uint64_t b, uint64_t n) {
     /*
      * unsigned long long int because of the (a * prev + b)
-     * max value of a, prev and b is 2 ^ 31 - 1
+     * max value of a, prev and b is 2 ^ (31 - 1)
      * (2 ^ 31 - 1) ^ 2 + 2 ^ 31 - 1 = 4611686016279904256
      * this fits into unsigned long long int
      *
@@ -28,7 +24,7 @@ unsigned int linear_generator(
     return ((a * prev + b) % (2 << (n - 1)));
 }
 
-bool is_in_interval(unsigned int x, unsigned int start, unsigned int end) {
+bool is_in_interval(uint32_t x, uint32_t start, uint32_t end) {
     return start <= x && x <= end;
 }
 
@@ -36,9 +32,9 @@ bool is_in_interval(unsigned int x, unsigned int start, unsigned int end) {
  * source: https://en.wikipedia.org/wiki/Hamming_distance
  * here the number of while loop iteration depends on e
  */
-unsigned int hamming_distance(unsigned int x, unsigned int y) {
-    unsigned int distance = 0;
-    unsigned int xor_val = x ^ y;
+uint32_t hamming_distance(uint32_t x, uint32_t y) {
+    uint32_t distance = 0;
+    uint32_t xor_val = x ^ y;
 
     while (xor_val) { /* count the number of bits set */
         ++distance; /* a bit is set increment the counter */ 
@@ -49,34 +45,36 @@ unsigned int hamming_distance(unsigned int x, unsigned int y) {
 }
 
 /* parse input */
-unsigned int **read_sequential(FILE *file, unsigned int &num) {
+uint32_t **read_sequential(FILE *file, uint32_t &num) {
     /* first in file is number of linear generators */
-    fscanf(file, "%u", &num);
+    if (fscanf(file, "%" SCNu32, &num) != 1)
+        return nullptr;
 
     /*
      * then there in num of lines each containing three numbers
      * a, b, c separated by spaces
      */
-    unsigned int **arr = new unsigned int*[num];
+    uint32_t **arr = new uint32_t*[num];
     if (arr == nullptr)
         return nullptr;
-    for (unsigned int i = 0; i < num; ++i) {
-        arr[i] = new unsigned int[3];
+    for (uint32_t i = 0; i < num; ++i) {
+        arr[i] = new uint32_t[3];
         if (arr[i] == nullptr)
             return nullptr;
-        fscanf(file, "%u%u%u", &(arr[i][0]), &(arr[i][1]), &(arr[i][2]));
+        if (fscanf(file, "%" SCNu32 "%" SCNu32 "%" SCNu32,
+                    arr[i], arr[i] + 1, arr[i] + 2) != 3)
+            return nullptr;
     }
 
     return arr;
 }
 
-double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
-        unsigned int e) {
+double sequential(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
     /* read linear generators */
-    unsigned int num;
-    unsigned int **linear_generators = read_sequential(input, num);
+    uint32_t num;
+    uint32_t **linear_generators = read_sequential(input, num);
     if (linear_generators == nullptr) {
-        fprintf(stderr, "Input file reading error.\n");
+        fprintf(stdout, "Input file reading error.\n");
         return 0;
     }
 
@@ -84,13 +82,13 @@ double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
     /* start time measurement */
     start = std::chrono::high_resolution_clock::now();
 
-    unsigned int a, b, n;
-    unsigned int x;
-    unsigned int count_in_interval;
-    unsigned int min_distance, max_distance;
-    unsigned int distance;
+    uint32_t a, b, n;
+    uint32_t x;
+    uint32_t count_in_interval;
+    uint32_t min_distance, max_distance;
+    uint32_t distance;
     /* for each linear generator */
-    for (unsigned int i = 0; i < num; ++i) {
+    for (uint32_t i = 0; i < num; ++i) {
         a = linear_generators[i][0];
         b = linear_generators[i][1];
         n = linear_generators[i][2];
@@ -99,7 +97,7 @@ double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
         min_distance = UINT_MAX;
         max_distance = 0;
     
-        for (unsigned int j = 0; j < k; ++j) {
+        for (uint32_t j = 0; j < k; ++j) {
             /* compute next value */
             x = linear_generator(a, x, b, n);
 
@@ -116,6 +114,11 @@ double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
             if (max_distance < distance)
                 max_distance = distance;
         }
+
+        /* use computed values so compiler does not exclude them */
+        fprintf(stderr,
+                "%" PRIu32 "%" PRIu32 "%" PRIu32,
+                count_in_interval, min_distance, max_distance);
     }
 
     /* end time measurement */
@@ -127,7 +130,7 @@ double sequential(FILE *input, unsigned int k, unsigned int c, unsigned int d,
             );
 
     /* free array with linear generators */
-    for (unsigned int i = 0; i < num; ++i)
+    for (uint32_t i = 0; i < num; ++i)
         delete [] linear_generators[i];
     delete [] linear_generators;
 
