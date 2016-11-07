@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <algorithm>
 #include <chrono>
 
 /* parse input */
@@ -59,29 +60,11 @@ double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
         max_distance = 0;
 
         for (uint32_t j = 0; j < k; ++j) {
-            /* TODO
-             * zeptat se jestli prace s 64 bitovymi cisli je nejak vyrazene
-             * pomalejsi nez prace s 32 bitovymi
-             */
-            /* compute next value */
             x = (((uint64_t)a * x + b) % (2 << (n - 1)));
-
-            /* check if x is in interval */
-            if (c <= x && x <= d)
-                ++count_in_interval;
-
-            /*
-             * TODO
-             * zeptat se ze v prednaskach nic neni a jestli tohle je ono
-             */
-            /* compute hamming distance */
+            if (c <= x && x <= d) ++count_in_interval;
             distance = __builtin_popcount(x ^ e);
-            /* check minimal hamming distance */
-            if (min_distance > distance)
-                min_distance = distance;
-            /* check maximal hamming distance */
-            if (max_distance < distance)
-                max_distance = distance;
+            min_distance = std::min(min_distance, distance);
+            max_distance = std::max(max_distance, distance);
         }
 
         /* use computed values so compiler does not exclude them */

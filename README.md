@@ -21,7 +21,4 @@ konstanty _c_, _d_, _e_ (pro vsechny generatory stejne), najit:
 1. prohodit cykly generatory a pocitani jejich hodnot
 2. ify se daj vektorizovat
     - ify jsou pocitani intervalu, hamming, < distance, > distance
-3. Hamminga pocitat jako prednasce
-    - to jsem nenasel takze pomoci `__builtin_popcount()`
-4. rozdelit do filu a reseni prepinat prepinacem
-5. data maj davat desitky sekund
+3. data maj davat desitky sekund
