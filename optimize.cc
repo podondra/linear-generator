@@ -49,6 +49,12 @@ double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
     uint32_t count_in_interval;
     uint32_t min_distance, max_distance;
     uint32_t distance;
+    /*
+     * TODO
+     * tady prohodit cykly takze pujdu k vnejsi a pres vsechny generatory
+     * vnitrni tim to budu moct vektorizovat akorat to nebude vsechno v
+     * registrech
+     */
     /* for each linear generator */
     for (uint32_t i = 0; i < num; ++i) {
         a = linear_generators[i][0];
@@ -60,8 +66,9 @@ double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
         max_distance = 0;
 
         for (uint32_t j = 0; j < k; ++j) {
-            x = (((uint64_t)a * x + b) % (2 << (n - 1)));
-            if (c <= x && x <= d) ++count_in_interval;
+            x = ((a * x + b) % (2 << (n - 1)));
+            count_in_interval += (c <= x && x <= d) ? 1 : 0;
+            /* TODO pouzit ten rozepsanej z prednasky */
             distance = __builtin_popcount(x ^ e);
             min_distance = std::min(min_distance, distance);
             max_distance = std::max(max_distance, distance);
