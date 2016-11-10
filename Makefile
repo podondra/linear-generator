@@ -32,4 +32,4 @@ optimize.o: optimize.cc
 	    -fopt-info-vec-optimized
 
 clean:
-	$(RM) linear-generator *.o *.s
+	$(RM) linear-generator *.o *.s vec.all
