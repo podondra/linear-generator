@@ -9,6 +9,7 @@ void optimized_loop(
         uint32_t *__restrict a,
         uint32_t *__restrict b,
         uint32_t *__restrict n, 
+        double *__restrict n_inv,
         uint32_t *__restrict x,
         uint32_t *__restrict count,
         uint32_t *__restrict min,
