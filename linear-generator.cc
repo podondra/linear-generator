@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "sequential.h"
-#include "optimize.h"
+#include "optimize-wrapper.h"
 
 /* display better usage */
 void usage(FILE *output) {
@@ -13,9 +13,9 @@ void usage(FILE *output) {
             "Use VARIANT of solution to compute input from FILE with PARAMS.\n"
             "\n"
             "Variant of solution is one of:\n"
-            "  --sequential\n"
-            "  --optimize\n"
-            "  --parallel\n"
+            "  --seq\n"
+            "  --opt\n"
+            "  --par\n"
             "\n"
             "Parameters for computation:\n"
             "  -k NUM\n"
@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
     while (true) {
         static struct option long_options[] = {
             /* these options set a flag */
-            {"sequential", no_argument, &variant_flag, 0},
-            {"optimize", no_argument, &variant_flag, 1},
-            {"parallel", no_argument, &variant_flag, 2},
+            {"seq", no_argument, &variant_flag, 0},
+            {"opt", no_argument, &variant_flag, 1},
+            {"par", no_argument, &variant_flag, 2},
             {"help", no_argument, nullptr, 'h'},
             {0, 0, 0, 0}
         };

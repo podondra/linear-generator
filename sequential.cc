@@ -1,7 +1,6 @@
-#include <inttypes.h>
-#include <limits.h>
-#include <stdio.h>
-
+#include <cinttypes>
+#include <climits>
+#include <cstdio>
 #include <chrono>
 
 /*
@@ -12,7 +11,7 @@
  * 0 < a, b < 2 ^ n, (b cannot be 0)
  * x[0] = 0, (seed)
  */
-uint32_t linear_generator(uint64_t a, uint64_t prev, uint64_t b, uint64_t n) {
+uint32_t linear_generator(uint32_t a, uint32_t prev, uint32_t b, uint32_t n) {
     /*
      * unsigned long long int because of the (a * prev + b)
      * max value of a, prev and b is 2 ^ (31 - 1)
@@ -57,7 +56,7 @@ uint32_t **read_sequential(FILE *file, uint32_t &num) {
     uint32_t **arr = new uint32_t*[num];
     if (arr == nullptr)
         return nullptr;
-    for (uint32_t i = 0; i < num; ++i) {
+    for (size_t i = 0; i < num; ++i) {
         arr[i] = new uint32_t[3];
         if (arr[i] == nullptr)
             return nullptr;
@@ -88,7 +87,7 @@ double sequential(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
     uint32_t min_distance, max_distance;
     uint32_t distance;
     /* for each linear generator */
-    for (uint32_t i = 0; i < num; ++i) {
+    for (size_t i = 0; i < num; ++i) {
         a = linear_generators[i][0];
         b = linear_generators[i][1];
         n = linear_generators[i][2];
@@ -97,7 +96,7 @@ double sequential(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
         min_distance = UINT_MAX;
         max_distance = 0;
     
-        for (uint32_t j = 0; j < k; ++j) {
+        for (size_t j = 0; j < k; ++j) {
             /* compute next value */
             x = linear_generator(a, x, b, n);
 
@@ -117,7 +116,7 @@ double sequential(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
 
         /* use computed values so compiler does not exclude them */
         fprintf(stderr,
-                "%" PRIu32 "%" PRIu32 "%" PRIu32,
+                "%" PRIu32 " %" PRIu32 " %" PRIu32 "\n",
                 count_in_interval, min_distance, max_distance);
     }
 
@@ -130,7 +129,7 @@ double sequential(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
             );
 
     /* free array with linear generators */
-    for (uint32_t i = 0; i < num; ++i)
+    for (size_t i = 0; i < num; ++i)
         delete [] linear_generators[i];
     delete [] linear_generators;
 

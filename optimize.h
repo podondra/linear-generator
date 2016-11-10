@@ -1,4 +1,16 @@
-#include <stdio.h>
 #include <stdint.h>
 
-double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e);
+void optimized_loop(
+        uint32_t num,
+        uint32_t k,
+        uint32_t c,
+        uint32_t d,
+        uint32_t e,
+        uint32_t *__restrict a,
+        uint32_t *__restrict b,
+        uint32_t *__restrict n, 
+        uint32_t *__restrict x,
+        uint32_t *__restrict count,
+        uint32_t *__restrict min,
+        uint32_t *__restrict max
+        );
