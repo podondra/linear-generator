@@ -18,10 +18,6 @@ konstanty _c_, _d_, _e_ (pro vsechny generatory stejne), najit:
 - vektorizace
 
 ## TODOs
-1. prohodit cykly generatory a pocitani jejich hodnot
-2. ify se daj vektorizovat
-    - ify jsou pocitani intervalu, hamming, < distance, > distance
-3. data maj davat desitky sekund
-4. staci tabulky na graf nebudu mit dost dat
-5. v grafech vsechno prepocitat na vykonost! ale ja nemam flops
-6. pokud datove nezavisly pak generovat data nenacitat
+1. data maj davat desitky sekund
+2. staci tabulky na graf nebudu mit dost dat
+3. v grafech vsechno prepocitat na vykonost! ale ja nemam flops
