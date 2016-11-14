@@ -10,7 +10,7 @@ void optimized_loop(
         uint32_t *__restrict a,
         uint32_t *__restrict b,
         uint32_t *__restrict n, 
-        double *__restrict n_inv,
+        float *__restrict n_inv,
         uint32_t *__restrict x,
         uint32_t *__restrict count,
         uint32_t *__restrict min,
@@ -20,7 +20,7 @@ void optimized_loop(
     a = (uint32_t *)__builtin_assume_aligned(a, 32);
     b = (uint32_t *)__builtin_assume_aligned(b, 32);
     n = (uint32_t *)__builtin_assume_aligned(n, 32);
-    n_inv = (double *)__builtin_assume_aligned(n_inv, 32);
+    n_inv = (float *)__builtin_assume_aligned(n_inv, 32);
     x = (uint32_t *)__builtin_assume_aligned(x, 32);
     count = (uint32_t *)__builtin_assume_aligned(count, 32);
     min = (uint32_t *)__builtin_assume_aligned(min, 32);

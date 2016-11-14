@@ -58,7 +58,7 @@ double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
         return 0;
     }
 
-    double *n_inv = new double[num];
+    float *n_inv = new float[num];
 
     std::chrono::high_resolution_clock::time_point start, end;
     /* start time measurement */
