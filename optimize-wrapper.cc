@@ -1,15 +1,17 @@
-#include <inttypes.h>
-#include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
-
+#include <cinttypes>
+#include <climits>
+#include <cstdint>
+#include <cstdio>
 #include <chrono>
+#include <random>
 
 #include "optimize.h"
+#include "random.h"
 
 /* parse input */
-uint32_t read_optimize(
-        FILE *file,
+uint32_t gen_optimize(
+        std::default_random_engine *engine,
+        uint32_t num,
         uint32_t **a,
         uint32_t **b,
         uint32_t **n,
@@ -18,15 +20,6 @@ uint32_t read_optimize(
         uint32_t **min,
         uint32_t **max
         ) {
-    /* first in file is number of linear generators */
-    uint32_t num;
-    if (fscanf(file, "%" SCNu32, &num) != 1)
-        return 0;
-
-    /*
-     * then there in num of lines each containing three numbers
-     * a, b, n separated by spaces
-     */
     *a = new uint32_t[num];
     *b = new uint32_t[num];
     *n = new uint32_t[num];
@@ -34,31 +27,36 @@ uint32_t read_optimize(
     *count = new uint32_t[num];
     *min = new uint32_t[num];
     *max = new uint32_t[num];
+
     if (!a || !b || !n || !x || !count || !min || !max)
-        return 0;
+        return false;
+
     for (uint32_t i = 0; i < num; ++i) {
-        if (fscanf(file, "%" SCNu32 "%" SCNu32 "%" SCNu32,
-                    (*a) + i, (*b) + i, (*n) + i) != 3)
-            return 0;
+        (*a)[i] = random_odd_num(engine);
+        (*b)[i] = random_odd_num(engine);
+        (*n)[i] = random_n(engine);
         (*x)[i] = 0;
         (*count)[i] = 0;
         (*min)[i] = UINT32_MAX;
         (*max)[i] = 0;
     }
 
-    return num;
+    return true;
 }
 
-double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
+double optimize(std::default_random_engine *engine, uint32_t k, uint32_t num) {
     /* read linear generators */
     uint32_t *a, *b, *n, *x, *count, *min, *max;
-    uint32_t num = read_optimize(input, &a, &b, &n, &x, &count, &min, &max);
-    if (num == 0) {
-        fprintf(stdout, "Input file reading error.\n");
+    if (gen_optimize(engine, num, &a, &b, &n, &x, &count, &min, &max) != true) {
+        fprintf(stdout, "Not enough memory.\n");
         return 0;
     }
 
     float *n_inv = new float[num];
+
+    uint32_t c = random_num(engine);
+    uint32_t d = random_num(engine);
+    uint32_t e = random_num(engine);
 
     std::chrono::high_resolution_clock::time_point start, end;
     /* start time measurement */
@@ -76,7 +74,8 @@ double optimize(FILE *input, uint32_t k, uint32_t c, uint32_t d, uint32_t e) {
 
     /* use computed values so compiler does not exclude them */
     for (size_t i = 0; i < num; ++i)
-        fprintf(stderr, "%" PRIu32 " %" PRIu32 " %" PRIu32 "\n",
+        fprintf(stderr,
+                "%" PRIu32 "%" PRIu32 "%" PRIu32,
                 count[i], min[i], max[i]);
 
     /* free arrays */

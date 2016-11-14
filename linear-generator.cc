@@ -1,7 +1,8 @@
-#include <stdint.h>
 #include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 
 #include "sequential.h"
 #include "optimize-wrapper.h"
@@ -9,28 +10,20 @@
 /* display better usage */
 void usage(FILE *output) {
     fprintf(output,
-            "Usage: ./linear-generator [VARIANT] PARAMS FILE 2> /dev/null\n"
-            "Use VARIANT of solution to compute input from FILE with PARAMS.\n"
+            "Usage: ./linear-generator [VARIANT] -k NUM -n NUM\n"
+            "Use VARIANT of solution to compute k iteration of n linear"
+            " generators.\n"
             "\n"
             "Variant of solution is one of:\n"
             "  --seq\n"
             "  --opt\n"
             "  --par\n"
-            "\n"
-            "Parameters for computation:\n"
-            "  -k NUM\n"
-            "  -c NUM\n"
-            "  -d NUM\n"
-            "  -e NUM\n"
             );
 }
 
 int main(int argc, char *argv[]) {
     int variant_flag = 0;
-    int32_t k = -1;
-    int32_t c = -1;
-    int32_t d = -1;
-    int32_t e = -1;
+    unsigned int k = 0, n = 0;
 
     /* getopt */
     while (true) {
@@ -46,8 +39,13 @@ int main(int argc, char *argv[]) {
         /* getopt_long stores the option index here */
         int option_index = 0;
 
-        int ch = getopt_long(argc, argv, "hk:c:d:e:", long_options,
-                &option_index);
+        int ch = getopt_long(
+                argc,
+                argv,
+                "hk:n:",
+                long_options,
+                &option_index
+                );
 
         /* detect the end of the options */
         if (ch == -1)
@@ -60,14 +58,8 @@ int main(int argc, char *argv[]) {
             case 'k':
                 k = strtol(optarg, nullptr, 10);
                 break;
-            case 'c':
-                c = strtol(optarg, nullptr, 10);
-                break;
-            case 'd':
-                d = strtol(optarg, nullptr, 10);
-                break;
-            case 'e':
-                e = strtol(optarg, nullptr, 10);
+            case 'n':
+                n = strtol(optarg, nullptr, 10);
                 break;
             default:
                 break;
@@ -75,30 +67,25 @@ int main(int argc, char *argv[]) {
     }
 
     /* check getopt values */
-    if (k == -1 || c == -1 || d == -1 || e == -1) {
-        usage(stderr);
+    if (k == 0 || n == 0) {
+        usage(stdout);
         return EXIT_FAILURE;
     }
-    if (optind != argc - 1) {
-        usage(stderr);
+    if (optind != argc) {
+        usage(stdout);
         return EXIT_FAILURE;
     }
 
-    /* open input file */
-    FILE *input = fopen(argv[argc - 1], "r");
-    if (input == nullptr) {
-        fprintf(stdout, "Cannot open input file.\n");
-        usage(stderr);
-        return EXIT_FAILURE;
-    }
+    std::random_device r;
+    std::default_random_engine engine(r());
 
     double time = 0;
     switch (variant_flag) {
         case 0:
-            time = sequential(input, k, c, d, e);
+            time = sequential(&engine, n, k);
             break;
         case 1:
-            time = optimize(input, k, c, d, e);
+            time = optimize(&engine, n, k);
             break;
         case 2:
             fprintf(stdout, "not implemented yet\n");
@@ -106,9 +93,6 @@ int main(int argc, char *argv[]) {
     }
     if (time != 0)
         fprintf(stdout, "%lf\n", time);
-
-    /* close input file */
-    fclose(input);
 
     return EXIT_SUCCESS;
 }

@@ -15,16 +15,20 @@ clang: optimize.cc
 	    -Rpass-missed=loop-vectorize \
 	    -Rpass-analysis=loop-vectorize
 
-linear-generator: linear-generator.o sequential.o optimize-wrapper.o optimize.o
+linear-generator: linear-generator.o sequential.o optimize-wrapper.o \
+    optimize.o random.o
 	$(CXX) $(DIAGNOSTICS) $^ -o linear-generator
 
 linear-generator.o: linear-generator.cc sequential.h optimize-wrapper.h
-	$(CXX) -c -O3 $(DIAGNOSTICS) $<
+	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-sequential.o: sequential.cc
-	$(CXX) -c -O3 $(DIAGNOSTICS) $<
+random.o: random.cc
+	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-optimize-wrapper.o: optimize-wrapper.cc optimize.h
+sequential.o: sequential.cc random.h
+	$(CXX) -c $(DIAGNOSTICS) -O3 $<
+
+optimize-wrapper.o: optimize-wrapper.cc optimize.h random.h
 	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
 optimize.o: optimize.cc
