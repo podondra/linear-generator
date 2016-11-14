@@ -5,35 +5,36 @@ ARCHITECTURE = -mavx
 
 all: linear-generator
 
-asm: optimize.cc
-	$(CXX) -S $(DIAGNOSTICS) -O3 $(ARCHITECTURE) $< \
-	    -fopt-info-vec-all=vec.all
-
-clang: optimize.cc
-	clang++ -std=c++11 -O3 -S $< \
-	    -Rpass=loop-vectorize \
-	    -Rpass-missed=loop-vectorize \
-	    -Rpass-analysis=loop-vectorize
-
 linear-generator: linear-generator.o sequential.o optimize-wrapper.o \
     optimize.o random.o
 	$(CXX) $(DIAGNOSTICS) $^ -o linear-generator
 
-linear-generator.o: linear-generator.cc sequential.h optimize-wrapper.h
+linear-generator.o: src/linear-generator.cc src/sequential.h \
+    src/optimize-wrapper.h
 	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-random.o: random.cc
+random.o: src/random.cc
 	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-sequential.o: sequential.cc random.h
+sequential.o: src/sequential.cc src/random.h
 	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-optimize-wrapper.o: optimize-wrapper.cc optimize.h random.h
+optimize-wrapper.o: src/optimize-wrapper.cc src/optimize.h src/random.h
 	$(CXX) -c $(DIAGNOSTICS) -O3 $<
 
-optimize.o: optimize.cc
+optimize.o: src/optimize.cc
 	$(CXX) -c $(DIAGNOSTICS) -O3 $(ARCHITECTURE) $< \
 	    -fopt-info-vec-optimized
+
+asm: src/optimize.cc
+	$(CXX) -S $(DIAGNOSTICS) -O3 $(ARCHITECTURE) $< \
+	    -fopt-info-vec-all=vec.all
+
+clang: src/optimize.cc
+	clang++ -std=c++11 -O3 -S $< \
+	    -Rpass=loop-vectorize \
+	    -Rpass-missed=loop-vectorize \
+	    -Rpass-analysis=loop-vectorize
 
 clean:
 	$(RM) linear-generator *.o *.s vec.all
