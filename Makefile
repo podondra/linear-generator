@@ -30,11 +30,5 @@ asm: src/optimize.cc
 	$(CXX) -S $(DIAGNOSTICS) -O3 $(ARCHITECTURE) $< \
 	    -fopt-info-vec-all=vec.all
 
-clang: src/optimize.cc
-	clang++ -std=c++11 -O3 -S $< \
-	    -Rpass=loop-vectorize \
-	    -Rpass-missed=loop-vectorize \
-	    -Rpass-analysis=loop-vectorize
-
 clean:
 	$(RM) linear-generator *.o *.s vec.all

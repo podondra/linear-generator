@@ -14,19 +14,20 @@ uint32_t gen_optimize(
         uint32_t num,
         uint32_t **a,
         uint32_t **b,
-        uint32_t **n,
+        float **n,
         uint32_t **x,
         uint32_t **count,
         uint32_t **min,
         uint32_t **max
         ) {
-    *a = new uint32_t[num];
-    *b = new uint32_t[num];
-    *n = new uint32_t[num];
-    *x = new uint32_t[num];
-    *count = new uint32_t[num];
-    *min = new uint32_t[num];
-    *max = new uint32_t[num];
+    *a = (uint32_t *)aligned_alloc(32, num * sizeof(*a));
+    *b = (uint32_t *)aligned_alloc(32, num * sizeof(*b));
+    *n = (float *)aligned_alloc(32, num * sizeof(*n));
+    *x = (uint32_t *)aligned_alloc(32, num * sizeof(*x));
+    *count = (uint32_t *)aligned_alloc(32, num * sizeof(*count));
+    *min = (uint32_t *)aligned_alloc(32, num * sizeof(*min));
+    *max = (uint32_t *)aligned_alloc(32, num * sizeof(*max));
+
 
     if (!a || !b || !n || !x || !count || !min || !max)
         return false;
@@ -46,13 +47,12 @@ uint32_t gen_optimize(
 
 double optimize(std::default_random_engine *engine, uint32_t k, uint32_t num) {
     /* read linear generators */
-    uint32_t *a, *b, *n, *x, *count, *min, *max;
+    uint32_t *a, *b, *x, *count, *min, *max;
+    float *n;
     if (gen_optimize(engine, num, &a, &b, &n, &x, &count, &min, &max) != true) {
         fprintf(stdout, "Not enough memory.\n");
         return 0;
     }
-
-    float *n_inv = new float[num];
 
     uint32_t c = random_num(engine);
     uint32_t d = random_num(engine);
@@ -62,7 +62,7 @@ double optimize(std::default_random_engine *engine, uint32_t k, uint32_t num) {
     /* start time measurement */
     start = std::chrono::high_resolution_clock::now();
 
-    optimized_loop(num, k, c, d, e, a, b, n, n_inv, x, count, min, max);
+    optimized_loop(num, k, c, d, e, a, b, n, x, count, min, max);
 
     /* end time measurement */
     end = std::chrono::high_resolution_clock::now();
@@ -79,14 +79,13 @@ double optimize(std::default_random_engine *engine, uint32_t k, uint32_t num) {
                 count[i], min[i], max[i]);
 
     /* free arrays */
-    delete [] a;
-    delete [] b;
-    delete [] n;
-    delete [] n_inv;
-    delete [] x;
-    delete [] count;
-    delete [] min;
-    delete [] max;
+    free(a);
+    free(b);
+    free(n);
+    free(x);
+    free(count);
+    free(min);
+    free(max);
 
     return time_span.count();
 }

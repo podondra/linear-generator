@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 
@@ -9,8 +10,7 @@ void optimized_loop(
         uint32_t e,
         uint32_t *__restrict a,
         uint32_t *__restrict b,
-        uint32_t *__restrict n, 
-        float *__restrict n_inv,
+        float *__restrict n,
         uint32_t *__restrict x,
         uint32_t *__restrict count,
         uint32_t *__restrict min,
@@ -19,24 +19,21 @@ void optimized_loop(
     /* TODO add comments */
     a = (uint32_t *)__builtin_assume_aligned(a, 32);
     b = (uint32_t *)__builtin_assume_aligned(b, 32);
-    n = (uint32_t *)__builtin_assume_aligned(n, 32);
-    n_inv = (float *)__builtin_assume_aligned(n_inv, 32);
+    n = (float *)__builtin_assume_aligned(n, 32);
     x = (uint32_t *)__builtin_assume_aligned(x, 32);
     count = (uint32_t *)__builtin_assume_aligned(count, 32);
     min = (uint32_t *)__builtin_assume_aligned(min, 32);
     max = (uint32_t *)__builtin_assume_aligned(max, 32);
 
     for (size_t j = 0; j < num; ++j) {
-        n[j] = 2 << (n[j] - 1);
-        n_inv[j] = 1.0 / n[j];
+        n[j] = 1.f / std::exp2(n[j]);
     }
 
     uint32_t dist;
     for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < num; ++j) {
             x[j] = a[j] * x[j] + b[j];
-            /* x[j] -= ((uint32_t)(n_inv[j] * x[j])) * n[j]; */
-            x[j] -= ((uint32_t)(x[j] * n_inv[j])) * n[j];
+            x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
 
             count[j] += ((c <= x[j] && x[j] <= d) ? 1 : 0);
 
