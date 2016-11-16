@@ -3,13 +3,13 @@
 #include <cstdlib>
 
 void optimized_loop(
-        uint32_t num,
-        uint32_t k,
-        uint32_t c,
-        uint32_t d,
-        uint32_t e,
-        uint32_t *__restrict a,
-        uint32_t *__restrict b,
+        const uint32_t num,
+        const uint32_t k,
+        const uint32_t c,
+        const uint32_t d,
+        const uint32_t e,
+        const uint32_t *__restrict a,
+        const uint32_t *__restrict b,
         float *__restrict n,
         uint32_t *__restrict x,
         uint32_t *__restrict count,
