@@ -1,23 +1,20 @@
-# LINEARNI GENERATORY
+linearni generatory
+===================
 
-Mejme nekolik (_G_, pozor muze to byt i cislo v radech milionu) danych
-linearnich generatoru, kazdy z nich je dan parametry _a_, _b_, _n_. Generator
-vypocitava posloupnost _x[i] = (a * x[i - 1] + b) mod 2 ^ n_, kde _a_ a _b_ jsou
-kladna __licha__ cisla, _10 < n < 32_ a _x[0] = 0_. Pocet clenu teto
-posloupnosti je _k_ (pro vsechny generatory stejne). Ukolem je pro dane
-konstanty _c_, _d_, _e_ (pro vsechny generatory stejne), najit:
+<podszond@fit.cvut.cz>
 
-- kolikrat je pro dany generator _x[i]_ v intervalu _[c, d]_
-- kolik je pro dany generator minimálni a maximalni Hammingova vzdalenost mezi
-  _x[i]_ a parametrem _e_
+kapitola 1
+----------
 
-## UKOLY
+### definice problemu ###
 
-- loop unrolling
-- loop tiling
-- vektorizace
+Mějme několik (`G`, pozor může to být i číslo v řádech miliónů!) daných
+lineárních generátorů, každý z nich je dán parametry `a`, `b`, `n`. Generátor
+vypočítává posloupnost `x[i] = (a * x[i - 1] + b) mod 2 ^ n`, kde `a` a `b`
+jsou kladná lichá čísla, `10 < n < 32` a `x[0] = 0`. Počet členů této
+posloupnosti je `k` (pro všechny generátory stejné). Úkolem je pro dané
+konstanty `c`, `d`, `e` (pro všechny generátory stejné), najít:
 
-## TODOs
-1. data maj davat desitky sekund
-2. staci tabulky na graf nebudu mit dost dat
-3. v grafech vsechno prepocitat na vykonost! ale ja nemam flops
+1. kolikrát je pro daný generátor `x[i]` v intervalu `[c, d]`
+2. kolik je pro daný generátor minimální a maximální Hammingova vzdálenost mezi
+    `x[i]` a parametrem `e`
