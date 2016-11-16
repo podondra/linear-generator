@@ -15,5 +15,8 @@ random.o: src/random.cc
 seq.o: src/seq.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $<
 
+doc:
+	markdown README.md > index.html
+
 clean:
-	$(RM) lg *.o
+	$(RM) lg *.o index.html

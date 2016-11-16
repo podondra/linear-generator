@@ -1,5 +1,6 @@
 *.s
-vec.all
+lg
+index.html
 
 # Object files
 *.o
@@ -30,7 +31,6 @@ vec.all
 *.i*86
 *.x86_64
 *.hex
-linear-generator
 
 # Debug files
 *.dSYM/
