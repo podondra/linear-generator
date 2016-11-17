@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <getopt.h>
 #include "seq.h"
+#include "opt.h"
 
 using namespace std;
 
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
             time = seq(&engine, num, k);
             break;
         case 1:
-            fprintf(stdout, "Not implemented yet.\n");
+            time = opt(&engine, num, k);
             break;
         case 2:
             fprintf(stdout, "Not implemented yet.\n");
