@@ -24,6 +24,15 @@ void opt_computation(
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
+    /* TODO comment */
+    a = (uint32_t *)__builtin_assume_aligned(a, 32);
+    b = (uint32_t *)__builtin_assume_aligned(b, 32);
+    n = (float *)__builtin_assume_aligned(n, 32);
+    x = (uint32_t *)__builtin_assume_aligned(x, 32);
+    min = (uint32_t *)__builtin_assume_aligned(min, 32);
+    max = (uint32_t *)__builtin_assume_aligned(max, 32);
+    count = (uint32_t *)__builtin_assume_aligned(count, 32);
+
     for (size_t j = 0; j < num; ++j)
         n[j] = 1.f / std::exp2(n[j]);
 
@@ -62,13 +71,14 @@ bool gen_opt(
         uint32_t **max,
         uint32_t **count
         ) {
-    *a = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *b = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *n = (float *)malloc(num * sizeof(float));
-    *x = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *min = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *max = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *count = (uint32_t *)malloc(num * sizeof(uint32_t));
+    *a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+    *b = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+    *n = (float *)aligned_alloc(32, num * sizeof(float));
+    *x = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+    *min = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+    *max = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+    *count = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+
 
     if (!a || !b || !n || !x || !min || !max || !count)
         return false;
