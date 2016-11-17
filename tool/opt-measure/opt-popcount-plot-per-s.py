@@ -21,12 +21,18 @@ with open('opt-popcount-long.sh.o84557', 'r') as f:
         n_opt.append(int(data[0]))
         time_opt.append(float(data[1]))
 
+op_seq = []
+op_opt = []
+for i in range(len(time_seq)):
+    op_seq.append(n_seq[i] / time_seq[i])
+    op_opt.append(n_opt[i] / time_opt[i])
+
 # plot data
-plt.plot(n_seq, time_seq, '.-', label='sekvenci, gcc -03')
-plt.plot(n_opt, time_opt, '.-', label='popcount, gcc -03')
+plt.plot(n_seq, op_seq, '.-', label='sekvenci, gcc -03')
+plt.plot(n_opt, op_opt, '.-', label='population count, gcc -03')
 plt.legend(loc='best')
-plt.ylabel('cas [s]')
+plt.ylabel('n / t [s ^ -1]')
 plt.xlabel('pocet linearnich generatoru')
-plt.title('casova slozitost - pouziti popcount')
+plt.title('linearnich generatoru za sekundu - population count')
 plt.grid(True)
 plt.show()

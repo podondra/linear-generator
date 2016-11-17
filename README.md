@@ -174,3 +174,5 @@ Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
 ctryrikrat.
 
 ![population count](img/opt-popcount.svg)
+
+![population count - per second](img/opt-popcount-per-s.svg)
