@@ -1,6 +1,6 @@
 <h1>linearni generatory</h1>
 
-<p><a href="m&#97;&#105;&#x6C;&#x74;&#x6F;:&#112;&#x6F;&#100;&#115;&#122;&#111;&#x6E;&#100;&#64;f&#105;&#116;&#x2E;&#99;&#118;u&#x74;.&#99;&#x7A;">&#112;&#x6F;&#100;&#115;&#122;&#111;&#x6E;&#100;&#64;f&#105;&#116;&#x2E;&#99;&#118;u&#x74;.&#99;&#x7A;</a></p>
+<p><a href="&#109;a&#x69;&#108;&#116;&#x6F;:po&#100;&#x73;&#x7A;&#111;&#x6E;&#x64;&#64;&#x66;&#x69;&#116;&#46;&#x63;&#x76;&#x75;&#x74;.&#x63;&#122;">po&#100;&#x73;&#x7A;&#111;&#x6E;&#x64;&#64;&#x66;&#x69;&#116;&#46;&#x63;&#x76;&#x75;&#x74;.&#x63;&#122;</a></p>
 
 <h2>kapitola 1</h2>
 
@@ -99,6 +99,21 @@ tato zavislost odstarnena.</p>
 </code></pre></li>
 </ol>
 
+<h3>kompilace programu</h3>
+
+<p>Pro kompilaci programu pouzivam kompilator gcc. Zakladni kompilace pouziva
+nasleduji prepinace:</p>
+
+<pre><code>g++ -std=c++11 -march=ivybridge -O3 ...
+</code></pre>
+
+<p><code>-march=ivybridge</code> zajisti kompilovani kodu pro vypocetni svazky Intel Xeon
+2620 v2 @ 2.1Ghz. Toto nastaveni jsem zjistil prikazem:</p>
+
+<pre><code>gcc -march=native -Q --help=target | grep march
+  -march=                           ivybridge
+</code></pre>
+
 <h3>namerene hodnoty casove slozitost</h3>
 
 <table>
@@ -141,4 +156,28 @@ tato zavislost odstarnena.</p>
 
 <h2>kapitola 2 (optimalizovana verze)</h2>
 
-<p>todo</p>
+<h3>popis úprav programu a jejich implementace</h3>
+
+<p>V nasledujici casti popisu jednotlive optimalizece programu a analyzuji jejich
+dopad na vykonost vypoctu.</p>
+
+<h4>inline funkce a population count</h4>
+
+<p>Vlozenim kodu funkci v tuto chvili neziskam zadne zrychleni, protoze <code>-O3</code>
+nastaveni kompilatoru toto provede automaticky.</p>
+
+<p>Kod pro vypocet Hammingovy vzdalenosti je neefektvni, protoze pouziva
+<code>while</code> loop a netrva tedy konstatni dobu. Efektivnejsi implementace je
+pomoci <code>population count</code>:</p>
+
+<pre><code>dist = x ^ e;
+dist = dist - ((dist &gt;&gt; 1) &amp; 0x55555555);
+dist = (dist &amp; 0x33333333) + ((dist &gt;&gt; 2) &amp; 0x33333333);
+dist = (((dist + (dist &gt;&gt; 4)) &amp; 0x0F0F0F0F) * 0x01010101) &gt;&gt; 24;
+</code></pre>
+
+<p>Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
+(<code>uint32_t</code>) v konstantnim case. Tato optimalizace program zrychli v prumeru
+ctryrikrat.</p>
+
+<p><img src="img/opt-popcount.svg" alt="population count" title="" /></p>

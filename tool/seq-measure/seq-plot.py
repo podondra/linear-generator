@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import sys
 
 n = []
 time = []
 
 # read input data
-filename = sys.argv[1]
-with open(filename, 'r') as f:
+with open('seq-long.sh.o84518', 'r') as f:
     for line in f:
         data = line.split()
         n.append(int(data[0]))

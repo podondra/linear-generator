@@ -94,6 +94,19 @@ linearniho generatoru.
             return distance;
         }
 
+### kompilace programu ###
+
+Pro kompilaci programu pouzivam kompilator gcc. Zakladni kompilace pouziva
+nasleduji prepinace:
+
+    g++ -std=c++11 -march=ivybridge -O3 ...
+
+`-march=ivybridge` zajisti kompilovani kodu pro vypocetni svazky Intel Xeon
+2620 v2 @ 2.1Ghz. Toto nastaveni jsem zjistil prikazem:
+
+    gcc -march=native -Q --help=target | grep march
+      -march=                           ivybridge
+
 ### namerene hodnoty casove slozitost ###
 
 <table>
@@ -137,4 +150,27 @@ linearniho generatoru.
 kapitola 2 (optimalizovana verze)
 ---------------------------------
 
-todo
+### popis úprav programu a jejich implementace ###
+
+V nasledujici casti popisu jednotlive optimalizece programu a analyzuji jejich
+dopad na vykonost vypoctu.
+
+#### inline funkce a population count ####
+
+Vlozenim kodu funkci v tuto chvili neziskam zadne zrychleni, protoze `-O3`
+nastaveni kompilatoru toto provede automaticky.
+
+Kod pro vypocet Hammingovy vzdalenosti je neefektvni, protoze pouziva
+`while` loop a netrva tedy konstatni dobu. Efektivnejsi implementace je
+pomoci `population count`:
+
+    dist = x ^ e;
+    dist = dist - ((dist >> 1) & 0x55555555);
+    dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
+    dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+
+Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
+(`uint32_t`) v konstantnim case. Tato optimalizace program zrychli v prumeru
+ctryrikrat.
+
+![population count](img/opt-popcount.svg)
