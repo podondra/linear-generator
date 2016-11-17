@@ -176,3 +176,44 @@ ctryrikrat.
 ![population count](img/opt-popcount.svg)
 
 ![population count - per second](img/opt-popcount-per-s.svg)
+
+#### loop intechange ####
+
+Program nevyuziva vektorovych instrukci procesoru. Vyuzite techto instrukci je
+pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
+`x` na predchozi hodnote ve vnitrim cyklu:
+
+    x = ((a * x + b) % (2 << (n - 1)));
+
+Transformace loop interchange odstrani tuto zavislost. Vnejsi cyklus bude
+iterovat pres jednotlive cleny posloupnosti `x[i]` a cyklus vnitri pres vsechny
+linearni generatory. Bohuzel se zhorsi pametova narocnost a vyuziti cache
+pameti, protoze se parametry linearnich generatoru budou opakovane nacitat.
+
+Vysledny kod vypada takto (parametry linernich generatu ukladam v
+jednorozmernych polich):
+
+    for (size_t i = 0; i < k; ++i) {
+        /* for each linear generator */
+        for (size_t j = 0; j < num; ++j) {
+            /* compute next value */
+            x[j] = ((a[j] * x[j] + b[j]) % (2 << (n[j] - 1)));
+
+            /* check if x is in interval */
+            if (c <= x[j] && x[j] <= d)
+                count[j] += 1;
+
+            /* compute hamming distance */
+            dist = x[j] ^ e;
+            dist = dist - ((dist >> 1) & 0x55555555);
+            dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
+            dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+
+            /* check minimal hamming distance */
+            if (min[j] > dist)
+                min[j] = dist;
+            /* check maximal hamming distance */
+            if (max[j] < dist)
+                max[j] = dist;
+        }
+    }
