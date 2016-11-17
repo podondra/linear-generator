@@ -12,11 +12,11 @@ with open('seq-long.sh.o84746', 'r') as f:
 
 plt.title('casova slozitost sekvenci implementace')
 
-plt.plot(n, time, 'b.-', label='gcc -O3')
+plt.plot(n, t, 'b.-', label='gcc -O3')
 
 plt.legend(loc='best')
 plt.ylabel('cas [s]')
-plt.xlabel('pocet G')
+plt.xlabel('pocet linearnich generatoru')
 plt.grid(True)
 
 plt.savefig('seq.svg')

@@ -1,6 +1,6 @@
 <h1>linearni generatory</h1>
 
-<p><a href="&#109;&#x61;&#105;&#x6C;&#x74;&#x6F;:&#x70;&#x6F;&#x64;&#x73;&#x7A;&#111;&#110;&#100;&#64;f&#105;&#116;&#46;&#99;&#118;u&#x74;&#x2E;&#99;z">&#x70;&#x6F;&#x64;&#x73;&#x7A;&#111;&#110;&#100;&#64;f&#105;&#116;&#46;&#99;&#118;u&#x74;&#x2E;&#99;z</a></p>
+<p><a href="&#x6D;&#97;&#105;l&#x74;o:&#112;o&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#x66;&#105;&#x74;&#x2E;&#99;v&#117;&#x74;&#x2E;&#x63;&#122;">&#112;o&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#x66;&#105;&#x74;&#x2E;&#99;v&#117;&#x74;&#x2E;&#x63;&#122;</a></p>
 
 <h2>kapitola 1</h2>
 
@@ -116,42 +116,6 @@ nasleduji prepinace:</p>
 
 <h3>namerene hodnoty casove slozitost</h3>
 
-<table>
-    <tr>
-        <th>number of linear generators</th><th>time [s]</th>
-    </tr>
-    <tr>
-        <td>5000000</td><td>14.376684</td>
-    </tr>
-    <tr>
-        <td>10000000</td><td>26.709448</td>
-    </tr>
-    <tr>
-        <td>15000000</td><td>40.509184</td>
-    </tr>
-    <tr>
-        <td>20000000</td><td>53.359419</td>
-    </tr>
-    <tr>
-        <td>25000000</td><td>64.964906</td>
-    </tr>
-    <tr>
-        <td>30000000</td><td>83.661873</td>
-    </tr>
-    <tr>
-        <td>35000000</td><td>94.967115</td>
-    </tr>
-    <tr>
-        <td>40000000</td><td>104.054127</td>
-    </tr>
-    <tr>
-        <td>45000000</td><td>117.829724</td>
-    </tr>
-    <tr>
-        <td>50000000</td><td>134.251642</td>
-    </tr>
-</table>
-
 <p><img src="img/seq.svg" alt="casova slozitost sekvencni implementace" title="" /></p>
 
 <h2>kapitola 2 (optimalizovana verze)</h2>
@@ -186,7 +150,8 @@ ctryrikrat.</p>
 
 <h4>loop intechange</h4>
 
-<p>Program nevyuziva vektorovych instrukci procesoru. Vyuzite techto instrukci je
+<p>Program nevyuziva vektorovych instrukci AVX procesoru. Podporu tech instrukci
+pri kompilaci zapneme prepinacem <code>-mavx</code>. Vyuzite vektorovych instrukci je
 pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
 <code>x</code> na predchozi hodnote ve vnitrim cyklu:</p>
 
@@ -227,4 +192,81 @@ jednorozmernych polich):</p>
             max[j] = dist;
     }
 }
+</code></pre>
+
+<p>Kompilator samozrejme tento kod nedokaze vektorizovat. Vypis prepinace
+<code>-fopt-info-vec-all</code> gcc:</p>
+
+<pre><code>not vectorized: control flow in loop.
+</code></pre>
+
+<h4>branch-less code</h4>
+
+<p>To znamena ze musime odstranit <code>if</code> podminky z vnitrniho cyklu. Misto nich lze
+pouzit ternarni operatory:</p>
+
+<pre><code>count[j] += (c &lt;= x[j] &amp;&amp; x[j] &lt;= d) ? 1 : 0;
+min[j] = (min[j] &lt; dist) ? min[j] : dist;
+max[j] = (max[j] &gt; dist) ? max[j] : dist;
+</code></pre>
+
+<p>Nyni kompilator hlasi problemy s aliasingem:</p>
+
+<pre><code>number of versioning for alias run-time tests exceeds 10
+</code></pre>
+
+<p>Upravim kod pridanim klicovych slov <code>__restrict__</code>, ktere aliasing vylouci. Pro
+snadnejsi implementaci vytvorim pro vypocet vlastni funkci <code>opt_computation()</code>:</p>
+
+<pre><code>void opt_computation(
+        uint32_t num,
+        uint32_t k,
+        uint32_t c,
+        uint32_t d,
+        uint32_t e,
+        uint32_t *__restrict__ a,
+        uint32_t *__restrict__ b,
+        uint32_t *__restrict__ n,
+        uint32_t *__restrict__ x,
+        uint32_t *__restrict__ min,
+        uint32_t *__restrict__ max,
+        uint32_t *__restrict__ count
+        );
+</code></pre>
+
+<p>Kompilator stale nemuze tento program vektorizovat. Nyni hlasi nepodporovanou
+operaci:</p>
+
+<pre><code>not vectorized: relevant stmt not supported: _30 = 2 &lt;&lt; _29;
+</code></pre>
+
+<h4>loop fission</h4>
+
+<p>Je treba se teto operace zbavit. To v tomto pripade lze pomoci transformace
+loop fision. Zbytecne stale dokola pocitam hodnotu <code>2 ^ n</code>, ktera se v
+prubehu vypoctu nemeni. Vypocitam ji tedy pre telem hlavnich <code>for</code> cyklu:</p>
+
+<pre><code>for (size_t j = 0; j &lt; num; ++j)
+    n[j] = 2 &lt;&lt; (n[j] - 1);
+
+for (size_t i = 0; i &lt; k; ++i) {
+    for (size_t j = 0; j &lt; num; ++j) {
+        x[j] = (a[j] * x[j] + b[j]) % n[j];
+</code></pre>
+
+<p>todo zpomaleni</p>
+
+<h4>vektorizace</h4>
+
+<p>AVX bohuzel nepodporuje modulo operator:</p>
+
+<pre><code>not vectorized: relevant stmt not supported: _40 = _37 % _39;
+</code></pre>
+
+<p>Modulo lze nahradit nasobenim inverze cisla. Abych mohl tuto optimalizaci
+provest musim pole <code>n</code> prevest z datoveho typu <code>uint32_t</code> na typ <code>float</code>.</p>
+
+<h4>memory alignment</h4>
+
+<pre><code>loop peeled for vectorization to enhance alignment
 </code></pre>
