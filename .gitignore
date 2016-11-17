@@ -1,6 +1,5 @@
 *.s
 lg
-index.html
 
 # Object files
 *.o

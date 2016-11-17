@@ -20,4 +20,4 @@ doc:
 	markdown README.md > index.html
 
 clean:
-	$(RM) lg *.o index.html
+	$(RM) lg *.o

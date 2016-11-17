@@ -1,0 +1,144 @@
+<h1>linearni generatory</h1>
+
+<p><a href="m&#97;&#105;&#x6C;&#x74;&#x6F;:&#112;&#x6F;&#100;&#115;&#122;&#111;&#x6E;&#100;&#64;f&#105;&#116;&#x2E;&#99;&#118;u&#x74;.&#99;&#x7A;">&#112;&#x6F;&#100;&#115;&#122;&#111;&#x6E;&#100;&#64;f&#105;&#116;&#x2E;&#99;&#118;u&#x74;.&#99;&#x7A;</a></p>
+
+<h2>kapitola 1</h2>
+
+<h3>definice problemu</h3>
+
+<p>Mějme několik (<code>G</code>, pozor může to být i číslo v řádech miliónů!) daných
+lineárních generátorů, každý z nich je dán parametry <code>a</code>, <code>b</code>, <code>n</code>. Generátor
+vypočítává posloupnost <code>x[i] = (a * x[i - 1] + b) mod 2 ^ n</code>, kde <code>a</code> a <code>b</code>
+jsou kladná lichá čísla, <code>10 &lt; n &lt; 32</code> a <code>x[0] = 0</code>. Počet členů této
+posloupnosti je <code>k</code> (pro všechny generátory stejné). Úkolem je pro dané
+konstanty <code>c</code>, <code>d</code>, <code>e</code> (pro všechny generátory stejné), najít:</p>
+
+<ol>
+<li>kolikrát je pro daný generátor <code>x[i]</code> v intervalu <code>[c, d]</code></li>
+<li>kolik je pro daný generátor minimální a maximální Hammingova vzdálenost
+mezi <code>x[i]</code> a parametrem <code>e</code></li>
+</ol>
+
+<h3>popis sekvencniho algoritmu a jeho implementace</h3>
+
+<p>Sekvenci algoritmus se sklada ze dvou <code>for</code> cyklu. Vnejsi cyklus iteruje
+pres vsechny linearni generatory <code>G</code>. <code>G</code> jsou ulozeny ve
+dvourozmernem poli. V kazdem radku je trojice <code>uint32_t</code> cisel <code>a</code>, <code>b</code> a
+<code>n</code>.</p>
+
+<pre><code>/* for each linear generator */
+for (size_t i = 0; i &lt; num; ++i) {
+    a = linear_generators[i][0];
+    b = linear_generators[i][1];
+    n = linear_generators[i][2];
+    x = 0;
+    count = 0;
+    min = UINT32_MAX;
+    max = 0;
+</code></pre>
+
+<p>Vnitrni cyklus pocita a zkouma jednotlive cleny posloupnosti <code>x[k]</code>
+linearniho generatoru.</p>
+
+<pre><code>    for (size_t j = 0; j &lt; k; ++j) {
+        /* compute next value */
+        x = lin_gen(a, x, b, n);
+
+        /* check if x is in interval */
+        if (is_in_interval(x, c, d))
+            ++count;
+
+        /* compute hamming distance */
+        dist = hamming_distance(x, e);
+        /* check minimal hamming distance */
+        if (min &gt; dist)
+            min = dist;
+        /* check maximal hamming distance */
+        if (max &lt; dist)
+            max = dist;
+    }
+
+    /* use computed values so compiler does not exclude them */
+    fprintf(stderr, "%" PRIu32 "%" PRIu32 "%" PRIu32, count, min, max);
+}
+</code></pre>
+
+<h4>popis implementovanych funkci</h4>
+
+<ol>
+<li><p><code>lin_gen()</code> pocita nasledujici clen posloupnosti. Pro umocneni
+<code>2 ^ n</code> pouzivam operaci bitovy posun.</p>
+
+<pre><code>uint32_t lin_gen(uint32_t a, uint32_t x, uint32_t b, uint32_t n) {
+    /* don't care about overflow */
+    return (a * x + b) % (2 &lt;&lt; (n - 1));
+}
+</code></pre></li>
+<li><p><code>is_in_interval()</code> provede dve porovnani a vrati <code>true</code>
+pokud je <code>x</code> v zadanem intervalu jinak <code>false</code>.</p>
+
+<pre><code>bool is_in_interval(uint32_t x, uint32_t start, uint32_t end) {
+    return start &lt;= x &amp;&amp; x &lt;= end;
+}
+</code></pre></li>
+<li><p><code>hamming_distance()</code> implementuje algoritmus pro ziskani
+Hammingovy vzdalenosti z bitoveho or (<code>^</code>) promennych <code>x</code> a <code>e</code>
+postupnym odebiranim bitu ve <code>while</code> cyklu. Tato implementace je datove
+zavisla. Presto budu generovat data nahodne. Po optimalizacich bude
+tato zavislost odstarnena.</p>
+
+<pre><code>uint32_t hamming_distance(uint32_t x, uint32_t y) {
+    uint32_t distance = 0;
+    uint32_t xor_val = x ^ y;
+    while (xor_val) { /* count the number of bits set */
+        ++distance; /* a bit is set increment the counter */
+        xor_val &amp;= xor_val - 1; /* remove the counted bit */
+    }
+    return distance;
+}
+</code></pre></li>
+</ol>
+
+<h3>namerene hodnoty casove slozitost</h3>
+
+<table>
+    <tr>
+        <th>number of linear generators</th><th>time [s]</th>
+    </tr>
+    <tr>
+        <td>5000000</td><td>14.376684</td>
+    </tr>
+    <tr>
+        <td>10000000</td><td>26.709448</td>
+    </tr>
+    <tr>
+        <td>15000000</td><td>40.509184</td>
+    </tr>
+    <tr>
+        <td>20000000</td><td>53.359419</td>
+    </tr>
+    <tr>
+        <td>25000000</td><td>64.964906</td>
+    </tr>
+    <tr>
+        <td>30000000</td><td>83.661873</td>
+    </tr>
+    <tr>
+        <td>35000000</td><td>94.967115</td>
+    </tr>
+    <tr>
+        <td>40000000</td><td>104.054127</td>
+    </tr>
+    <tr>
+        <td>45000000</td><td>117.829724</td>
+    </tr>
+    <tr>
+        <td>50000000</td><td>134.251642</td>
+    </tr>
+</table>
+
+<p><img src="img/seq.svg" alt="casova slozitost sekvencni implementace" title="" /></p>
+
+<h2>kapitola 2 (optimalizovana verze)</h2>
+
+<p>todo</p>
