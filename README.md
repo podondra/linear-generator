@@ -94,6 +94,46 @@ linearniho generatoru.
             return distance;
         }
 
+### namerene hodnoty casove slozitost ###
+
+<table>
+    <tr>
+        <th>number of linear generators</th><th>time [s]</th>
+    </tr>
+    <tr>
+        <td>5000000</td><td>14.376684</td>
+    </tr>
+    <tr>
+        <td>10000000</td><td>26.709448</td>
+    </tr>
+    <tr>
+        <td>15000000</td><td>40.509184</td>
+    </tr>
+    <tr>
+        <td>20000000</td><td>53.359419</td>
+    </tr>
+    <tr>
+        <td>25000000</td><td>64.964906</td>
+    </tr>
+    <tr>
+        <td>30000000</td><td>83.661873</td>
+    </tr>
+    <tr>
+        <td>35000000</td><td>94.967115</td>
+    </tr>
+    <tr>
+        <td>40000000</td><td>104.054127</td>
+    </tr>
+    <tr>
+        <td>45000000</td><td>117.829724</td>
+    </tr>
+    <tr>
+        <td>50000000</td><td>134.251642</td>
+    </tr>
+</table>
+
+![casova slozitost sekvencni implementace](img/seq.svg)
+
 kapitola 2 (optimalizovana verze)
 ---------------------------------
 
