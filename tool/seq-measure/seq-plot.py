@@ -6,7 +6,7 @@ n = []
 time = []
 
 # read input data
-with open('seq-long.sh.o84518', 'r') as f:
+with open('seq-long.sh.o', 'r') as f:
     for line in f:
         data = line.split()
         n.append(int(data[0]))
