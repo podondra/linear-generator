@@ -3,20 +3,20 @@
 import matplotlib.pyplot as plt
 
 n = []
-time = []
-
-# read input data
-with open('seq-long.sh.o', 'r') as f:
+t = []
+with open('seq-long.sh.o84746', 'r') as f:
     for line in f:
-        data = line.split()
-        n.append(int(data[0]))
-        time.append(float(data[1]))
+        d = line.split()
+        n.append(int(d[0]))
+        t.append(float(d[1]))
 
-# plot data
-plt.plot(n, time, '.-', label='gcc -03')
+plt.title('casova slozitost sekvenci implementace')
+
+plt.plot(n, time, 'b.-', label='gcc -O3')
+
 plt.legend(loc='best')
 plt.ylabel('cas [s]')
-plt.xlabel('pocet linearnich generatoru')
-plt.title('casova slozitost sekvenci implementace')
+plt.xlabel('pocet G')
 plt.grid(True)
-plt.show()
+
+plt.savefig('seq.svg')
