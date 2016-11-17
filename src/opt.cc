@@ -35,7 +35,7 @@ double opt(default_random_engine *engine, uint32_t k, uint32_t num) {
     uint32_t d = random_num(engine);
     uint32_t e = random_num(engine);
 
-    uint32_t a, b, n, x, count, min, max, dist, xor_val;
+    uint32_t a, b, n, x, count, min, max, dist;
 
     chrono::high_resolution_clock::time_point start, end;
     /* start time measurement */
@@ -59,17 +59,12 @@ double opt(default_random_engine *engine, uint32_t k, uint32_t num) {
             if (c <= x && x <= d)
                 ++count;
 
-            /*
-             * compute hamming distance
-             * source: https://en.wikipedia.org/wiki/Hamming_distance
-             * here the number of while loop iteration depends on e
-             */
-            dist = 0;
-            xor_val = x ^ e;
-            while (xor_val) { /* count the number of bits set */
-                ++dist; /* a bit is set increment the counter */
-                xor_val &= xor_val - 1; /* remove the counted bit */
-            }
+            /* compute hamming distance */
+            dist = x ^ e;
+            dist = dist - ((dist >> 1) & 0x55555555);
+            dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
+            dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+
             /* check minimal hamming distance */
             if (min > dist)
                 min = dist;
