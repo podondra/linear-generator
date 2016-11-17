@@ -96,7 +96,7 @@ bool gen_opt(
     return true;
 }
 
-double opt(default_random_engine *engine, uint32_t k, uint32_t num) {
+double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
     uint32_t *a, *b, *x, *min, *max, *count;
     float *n;

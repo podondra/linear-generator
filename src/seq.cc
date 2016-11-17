@@ -51,7 +51,7 @@ uint32_t **gen_seq(default_random_engine *engine, uint32_t num) {
     return lgs;
 }
 
-double seq(default_random_engine *engine, uint32_t k, uint32_t num) {
+double seq(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
     uint32_t **linear_generators = gen_seq(engine, num);
     if (linear_generators == nullptr) {
