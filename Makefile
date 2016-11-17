@@ -1,7 +1,8 @@
 SHELL = /bin/sh
-CXX = g++ -std=c++11
 DIAG = -fdiagnostics-color -Wall
 OBJ = lg.o random.o seq.o
+ARCH = -march=ivybridge
+CXX = g++ -std=c++11 $(ARCH)
 
 all: $(OBJ)
 	$(CXX) $(DIAG) $(OBJ) -o lg
