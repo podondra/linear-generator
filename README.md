@@ -187,8 +187,10 @@ pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
 
 Transformace loop interchange odstrani tuto zavislost. Vnejsi cyklus bude
 iterovat pres jednotlive cleny posloupnosti `x[i]` a cyklus vnitri pres vsechny
-linearni generatory. Bohuzel se zhorsi pametova narocnost a vyuziti cache
+linearni generatory. Bohuzel se pro nektere zhorsi vyuziti cache
 pameti, protoze se parametry linearnich generatoru budou opakovane nacitat.
+
+![loop interchange](img/opt-interchange.svg)
 
 Vysledny kod vypada takto (parametry linernich generatu ukladam v
 jednorozmernych polich):

@@ -21,11 +21,11 @@ with open('opt-popcount-long.sh.o84557', 'r') as f:
 y1 = []
 y2 = []
 for i in range(len(t1)):
-    y1.append(n1[i] / time1[i])
+    y1.append(n1[i] / t1[i])
     y2.append(n2[i] / t2[i])
 
 # plot data
-plt.plot(n1, y1, '.-', label='interchange, gcc -03')
+plt.plot(n1, y1, '.-', label='loop interchange, gcc -03')
 plt.plot(n2, y2, '.-', label='population count, gcc -03')
 plt.legend(loc='best')
 plt.ylabel('n / t [s ^ -1]')

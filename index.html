@@ -1,6 +1,6 @@
 <h1>linearni generatory</h1>
 
-<p><a href="&#x6D;&#x61;&#x69;&#108;&#x74;&#x6F;:&#x70;&#x6F;&#x64;&#115;&#x7A;o&#x6E;&#100;&#64;&#x66;&#105;&#x74;&#x2E;&#99;v&#x75;&#116;&#46;&#99;&#x7A;">&#x70;&#x6F;&#x64;&#115;&#x7A;o&#x6E;&#100;&#64;&#x66;&#105;&#x74;&#x2E;&#99;v&#x75;&#116;&#46;&#99;&#x7A;</a></p>
+<p><a href="&#109;&#x61;&#105;&#x6C;&#x74;&#x6F;:&#x70;&#x6F;&#x64;&#x73;&#x7A;&#111;&#110;&#100;&#64;f&#105;&#116;&#46;&#99;&#118;u&#x74;&#x2E;&#99;z">&#x70;&#x6F;&#x64;&#x73;&#x7A;&#111;&#110;&#100;&#64;f&#105;&#116;&#46;&#99;&#118;u&#x74;&#x2E;&#99;z</a></p>
 
 <h2>kapitola 1</h2>
 
@@ -183,3 +183,48 @@ ctryrikrat.</p>
 <p><img src="img/opt-popcount.svg" alt="population count" title="" /></p>
 
 <p><img src="img/opt-popcount-per-s.svg" alt="population count - per second" title="" /></p>
+
+<h4>loop intechange</h4>
+
+<p>Program nevyuziva vektorovych instrukci procesoru. Vyuzite techto instrukci je
+pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
+<code>x</code> na predchozi hodnote ve vnitrim cyklu:</p>
+
+<pre><code>x = ((a * x + b) % (2 &lt;&lt; (n - 1)));
+</code></pre>
+
+<p>Transformace loop interchange odstrani tuto zavislost. Vnejsi cyklus bude
+iterovat pres jednotlive cleny posloupnosti <code>x[i]</code> a cyklus vnitri pres vsechny
+linearni generatory. Bohuzel se pro nektere zhorsi vyuziti cache
+pameti, protoze se parametry linearnich generatoru budou opakovane nacitat.</p>
+
+<p><img src="img/opt-interchange.svg" alt="loop interchange" title="" /></p>
+
+<p>Vysledny kod vypada takto (parametry linernich generatu ukladam v
+jednorozmernych polich):</p>
+
+<pre><code>for (size_t i = 0; i &lt; k; ++i) {
+    /* for each linear generator */
+    for (size_t j = 0; j &lt; num; ++j) {
+        /* compute next value */
+        x[j] = ((a[j] * x[j] + b[j]) % (2 &lt;&lt; (n[j] - 1)));
+
+        /* check if x is in interval */
+        if (c &lt;= x[j] &amp;&amp; x[j] &lt;= d)
+            count[j] += 1;
+
+        /* compute hamming distance */
+        dist = x[j] ^ e;
+        dist = dist - ((dist &gt;&gt; 1) &amp; 0x55555555);
+        dist = (dist &amp; 0x33333333) + ((dist &gt;&gt; 2) &amp; 0x33333333);
+        dist = (((dist + (dist &gt;&gt; 4)) &amp; 0x0F0F0F0F) * 0x01010101) &gt;&gt; 24;
+
+        /* check minimal hamming distance */
+        if (min[j] &gt; dist)
+            min[j] = dist;
+        /* check maximal hamming distance */
+        if (max[j] &lt; dist)
+            max[j] = dist;
+    }
+}
+</code></pre>
