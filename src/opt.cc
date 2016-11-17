@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cinttypes>
 #include <climits>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -17,21 +18,22 @@ void opt_computation(
         uint32_t e,
         uint32_t *__restrict__ a,
         uint32_t *__restrict__ b,
-        uint32_t *__restrict__ n,
+        float *__restrict__ n,
         uint32_t *__restrict__ x,
         uint32_t *__restrict__ min,
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
     for (size_t j = 0; j < num; ++j)
-        n[j] = 2 << (n[j] - 1);
+        n[j] = 1.f / std::exp2(n[j]);
 
     uint32_t dist;
     for (size_t i = 0; i < k; ++i) {
         /* for each linear generator */
         for (size_t j = 0; j < num; ++j) {
             /* compute next value */
-            x[j] = (a[j] * x[j] + b[j]) % n[j];
+            x[j] = a[j] * x[j] + b[j];
+            x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
 
             /* check if x is in interval */
             count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
@@ -54,7 +56,7 @@ bool gen_opt(
         uint32_t num,
         uint32_t **a,
         uint32_t **b,
-        uint32_t **n,
+        float **n,
         uint32_t **x,
         uint32_t **min,
         uint32_t **max,
@@ -62,7 +64,7 @@ bool gen_opt(
         ) {
     *a = (uint32_t *)malloc(num * sizeof(uint32_t));
     *b = (uint32_t *)malloc(num * sizeof(uint32_t));
-    *n = (uint32_t *)malloc(num * sizeof(uint32_t));
+    *n = (float *)malloc(num * sizeof(float));
     *x = (uint32_t *)malloc(num * sizeof(uint32_t));
     *min = (uint32_t *)malloc(num * sizeof(uint32_t));
     *max = (uint32_t *)malloc(num * sizeof(uint32_t));
@@ -86,7 +88,8 @@ bool gen_opt(
 
 double opt(default_random_engine *engine, uint32_t k, uint32_t num) {
     /* read linear generators */
-    uint32_t *a, *b, *n, *x, *min, *max, *count;
+    uint32_t *a, *b, *x, *min, *max, *count;
+    float *n;
     if (gen_opt(engine, num, &a, &b, &n, &x, &min, &max, &count) == false) {
         fprintf(stdout, "Not enough memory.\n");
         return 0;
