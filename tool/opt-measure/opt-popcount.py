@@ -15,7 +15,7 @@ with open('../seq-measure/seq-long.sh.o', 'r') as f:
 n_opt = []
 time_opt = []
 
-with open('opt-popcount-time.sh.o', 'r') as f:
+with open('opt-popcount.sh.o', 'r') as f:
     for line in f:
         data = line.split()
         n_opt.append(int(data[0]))
