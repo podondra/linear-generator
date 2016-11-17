@@ -179,7 +179,8 @@ ctryrikrat.
 
 #### loop intechange ####
 
-Program nevyuziva vektorovych instrukci procesoru. Vyuzite techto instrukci je
+Program nevyuziva vektorovych instrukci AVX procesoru. Podporu tech instrukci
+pri kompilaci zapneme prepinacem `-mavx`. Vyuzite vektorovych instrukci je
 pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
 `x` na predchozi hodnote ve vnitrim cyklu:
 
@@ -219,3 +220,72 @@ jednorozmernych polich):
                 max[j] = dist;
         }
     }
+
+Kompilator samozrejme tento kod nedokaze vektorizovat. Vypis prepinace
+`-fopt-info-vec-all` gcc:
+
+    not vectorized: control flow in loop.
+
+#### branch-less code ####
+
+To znamena ze musime odstranit `if` podminky z vnitrniho cyklu. Misto nich lze
+pouzit ternarni operatory:
+
+    count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
+    min[j] = (min[j] < dist) ? min[j] : dist;
+    max[j] = (max[j] > dist) ? max[j] : dist;
+
+Nyni kompilator hlasi problemy s aliasingem:
+
+    number of versioning for alias run-time tests exceeds 10
+
+Upravim kod pridanim klicovych slov `__restrict__`, ktere aliasing vylouci. Pro
+snadnejsi implementaci vytvorim pro vypocet vlastni funkci `opt_computation()`:
+
+    void opt_computation(
+            uint32_t num,
+            uint32_t k,
+            uint32_t c,
+            uint32_t d,
+            uint32_t e,
+            uint32_t *__restrict__ a,
+            uint32_t *__restrict__ b,
+            uint32_t *__restrict__ n,
+            uint32_t *__restrict__ x,
+            uint32_t *__restrict__ min,
+            uint32_t *__restrict__ max,
+            uint32_t *__restrict__ count
+            );
+
+Kompilator stale nemuze tento program vektorizovat. Nyni hlasi nepodporovanou
+operaci:
+
+    not vectorized: relevant stmt not supported: _30 = 2 << _29;
+
+#### loop fission ####
+
+Je treba se teto operace zbavit. To v tomto pripade lze pomoci transformace
+loop fision. Zbytecne stale dokola pocitam hodnotu `2 ^ n`, ktera se v
+prubehu vypoctu nemeni. Vypocitam ji tedy pre telem hlavnich `for` cyklu:
+
+    for (size_t j = 0; j < num; ++j)
+        n[j] = 2 << (n[j] - 1);
+
+    for (size_t i = 0; i < k; ++i) {
+        for (size_t j = 0; j < num; ++j) {
+            x[j] = (a[j] * x[j] + b[j]) % n[j];
+
+todo zpomaleni
+
+#### vektorizace ####
+
+AVX bohuzel nepodporuje modulo operator:
+
+    not vectorized: relevant stmt not supported: _40 = _37 % _39;
+
+Modulo lze nahradit nasobenim inverze cisla. Abych mohl tuto optimalizaci
+provest musim pole `n` prevest z datoveho typu `uint32_t` na typ `float`.
+
+#### memory alignment ####
+
+    loop peeled for vectorization to enhance alignment
