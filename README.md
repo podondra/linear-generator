@@ -139,8 +139,6 @@ ctryrikrat.
 
 ![population count](img/opt-popcount.svg)
 
-![population count - per second](img/opt-popcount-per-s.svg)
-
 #### loop intechange ####
 
 Program nevyuziva vektorovych instrukci AVX procesoru. Podporu tech instrukci
