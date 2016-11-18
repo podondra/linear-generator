@@ -35,7 +35,7 @@ if __name__ == '__main__':
     plt.plot(n3, y3, 'k.-', label='memory alignment')
     plt.plot(n4, y4, 'c.-', label='vectorization')
 
-    plt.legend(loc='lower left')
+    plt.legend(loc='lower right')
 
     plt.ylabel('n / t [s ^ -1]')
     plt.xlabel('n - pocet linearnich generatoru')
