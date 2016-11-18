@@ -1,12 +1,12 @@
 <h1>linearni generatory</h1>
 
-<p><a href="&#109;&#x61;&#x69;&#x6C;&#116;o:&#x70;&#111;&#100;&#115;&#x7A;&#x6F;&#x6E;&#100;&#64;&#x66;&#105;&#116;&#46;&#x63;&#118;&#117;&#116;.&#99;&#122;">&#x70;&#111;&#100;&#115;&#x7A;&#x6F;&#x6E;&#100;&#64;&#x66;&#105;&#116;&#46;&#x63;&#118;&#117;&#116;.&#99;&#122;</a></p>
+<p><a href="&#x6D;&#97;&#105;&#108;&#116;&#x6F;:p&#111;&#x64;&#x73;&#x7A;&#111;&#x6E;d&#64;&#x66;&#105;&#x74;&#x2E;&#x63;&#118;&#117;&#x74;.&#99;&#x7A;">p&#111;&#x64;&#x73;&#x7A;&#111;&#x6E;d&#64;&#x66;&#105;&#x74;&#x2E;&#x63;&#118;&#117;&#x74;.&#99;&#x7A;</a></p>
 
 <h2>kapitola 1</h2>
 
 <h3>definice problemu</h3>
 
-<p>Mějme několik (<code>G</code>, pozor může to být i číslo v řádech miliónů!) daných
+<p>Mějme několik <code>G</code> daných
 lineárních generátorů, každý z nich je dán parametry <code>a</code>, <code>b</code>, <code>n</code>. Generátor
 vypočítává posloupnost <code>x[i] = (a * x[i - 1] + b) mod 2 ^ n</code>, kde <code>a</code> a <code>b</code>
 jsou kladná lichá čísla, <code>10 &lt; n &lt; 32</code> a <code>x[0] = 0</code>. Počet členů této
@@ -85,7 +85,7 @@ pokud je <code>x</code> v zadanem intervalu jinak <code>false</code>.</p>
 Hammingovy vzdalenosti z bitoveho or (<code>^</code>) promennych <code>x</code> a <code>e</code>
 postupnym odebiranim bitu ve <code>while</code> cyklu. Tato implementace je datove
 zavisla. Presto budu generovat data nahodne. Po optimalizacich bude
-tato zavislost odstarnena.</p>
+tato zavislost odstranena.</p>
 
 <pre><code>uint32_t hamming_distance(uint32_t x, uint32_t y) {
     uint32_t distance = 0;
@@ -102,13 +102,13 @@ tato zavislost odstarnena.</p>
 <h3>kompilace programu</h3>
 
 <p>Pro kompilaci programu pouzivam kompilator gcc. Zakladni kompilace pouziva
-nasleduji prepinace:</p>
+prepinace:</p>
 
 <pre><code>g++ -std=c++11 -march=ivybridge -O3 ...
 </code></pre>
 
 <p><code>-march=ivybridge</code> zajisti kompilovani kodu pro vypocetni svazky Intel Xeon
-2620 v2 @ 2.1Ghz. Toto nastaveni jsem zjistil prikazem:</p>
+2620 v2 @ 2.1Ghz. Nastaveni jsem zjistil prikazem:</p>
 
 <pre><code>gcc -march=native -Q --help=target | grep march
   -march=                           ivybridge
@@ -122,17 +122,16 @@ nasleduji prepinace:</p>
 
 <h3>popis úprav programu a jejich implementace</h3>
 
-<p>V nasledujici casti popisu jednotlive optimalizece programu a analyzuji jejich
-dopad na vykonost vypoctu.</p>
+<p>V nasledujici casti popisu optimalizece programu a analyzuji jejich
+dopad na vykonost.</p>
 
 <h4>inline funkce a population count</h4>
 
-<p>Vlozenim kodu funkci v tuto chvili neziskam zadne zrychleni, protoze <code>-O3</code>
-nastaveni kompilatoru toto provede automaticky.</p>
+<p>Vlozenim kodu funkci v neziskam zadne zrychleni, protoze <code>-O3</code>
+nastaveni kompilatoru provede <em>inlining</em> automaticky.</p>
 
-<p>Kod pro vypocet Hammingovy vzdalenosti je neefektvni, protoze pouziva
-<code>while</code> loop a netrva tedy konstatni dobu. Efektivnejsi implementace je
-pomoci <code>population count</code>:</p>
+<p>Kod pro vypocet Hammingovy vzdalenosti je neefektvni,
+netrva konstatni dobu. Efektivnejsi implementace je pomoci <em>population count</em>:</p>
 
 <pre><code>dist = x ^ e;
 dist = dist - ((dist &gt;&gt; 1) &amp; 0x55555555);
@@ -141,30 +140,29 @@ dist = (((dist + (dist &gt;&gt; 4)) &amp; 0x0F0F0F0F) * 0x01010101) &gt;&gt; 24;
 </code></pre>
 
 <p>Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
-(<code>uint32_t</code>) v konstantnim case. Tato optimalizace program zrychli v prumeru
-ctryrikrat.</p>
+(<code>uint32_t</code>) v konstantnim case. Program se zrychli v prumeru ctryrikrat.</p>
 
 <p><img src="img/opt-popcount.svg" alt="population count" title="" /></p>
 
 <h4>loop intechange</h4>
 
-<p>Program nevyuziva vektorovych instrukci AVX procesoru. Podporu tech instrukci
-pri kompilaci zapneme prepinacem <code>-mavx</code>. Vyuzite vektorovych instrukci je
-pro zrychleni zasadni. Kompilator instrukce nevyuziva kvuli datove zavislosti
-<code>x</code> na predchozi hodnote ve vnitrim cyklu:</p>
+<p>Program nevyuziva vektorovych instrukci. Podporu tech instrukci
+pri kompilaci zapneme prepinacem <code>-mavx</code>.</p>
+
+<p>V generovani vektorovych instrukci brani kompilatoru datova zavislost <code>x</code> na
+predchozi iteraci:</p>
 
 <pre><code>x = ((a * x + b) % (2 &lt;&lt; (n - 1)));
 </code></pre>
 
-<p>Transformace loop interchange odstrani tuto zavislost. Vnejsi cyklus bude
-iterovat pres jednotlive cleny posloupnosti <code>x[i]</code> a cyklus vnitri pres vsechny
-linearni generatory. Bohuzel se pro nektere zhorsi vyuziti cache
-pameti, protoze se parametry linearnich generatoru budou opakovane nacitat.</p>
+<p>Transformace <em>loop interchange</em> odstrani tuto zavislost. Vnejsi cyklus bude
+iterovat pres cleny posloupnosti <code>x[i]</code> a vnitri cyklus pres vsechny
+linearni generatory.</p>
 
 <p><img src="img/opt-interchange.svg" alt="loop interchange" title="" /></p>
 
-<p>Vysledny kod vypada takto (parametry linernich generatu ukladam v
-jednorozmernych polich):</p>
+<p>Vysledny kod viz nize. Parametry linernich generatoru ukladam v
+jednorozmernych polich.</p>
 
 <pre><code>for (size_t i = 0; i &lt; k; ++i) {
     /* for each linear generator */
@@ -192,29 +190,33 @@ jednorozmernych polich):</p>
 }
 </code></pre>
 
-<p>Kompilator samozrejme tento kod nedokaze vektorizovat. Vypis prepinace
+<h4>branch-less code</h4>
+
+<p>Kompilator ani tento kod nedokaze vektorizovat. Vypis prepinace
 <code>-fopt-info-vec-all</code> gcc:</p>
 
 <pre><code>not vectorized: control flow in loop.
 </code></pre>
 
-<h4>branch-less code</h4>
-
-<p>To znamena ze musime odstranit <code>if</code> podminky z vnitrniho cyklu. Misto nich lze
-pouzit ternarni operatory:</p>
+<p><code>if</code> podminky brani vektorizaci. Misto nich pouziji ternarni neboli min a
+max operatory.</p>
 
 <pre><code>count[j] += (c &lt;= x[j] &amp;&amp; x[j] &lt;= d) ? 1 : 0;
 min[j] = (min[j] &lt; dist) ? min[j] : dist;
 max[j] = (max[j] &gt; dist) ? max[j] : dist;
 </code></pre>
 
-<p>Nyni kompilator hlasi problemy s aliasingem:</p>
+<h4>aliasing</h4>
+
+<p>Nyni kompilator hlasi problem s <em>aliasingem</em>:</p>
 
 <pre><code>number of versioning for alias run-time tests exceeds 10
 </code></pre>
 
-<p>Upravim kod pridanim klicovych slov <code>__restrict__</code>, ktere aliasing vylouci. Pro
-snadnejsi implementaci vytvorim pro vypocet vlastni funkci <code>opt_computation()</code>:</p>
+<p>Muj program pristupuje ke kazdemu poli prave jednim ukazatelem. <em>Aliasing</em>
+vyloucim pridanim klicoveho slova <code>__restrict__</code> k pointerum. Pro
+snadnejsi implementaci vytvorim pro vypocet vlastni funkci <code>opt_computation()</code>
+s nasledujici definici:</p>
 
 <pre><code>void opt_computation(
         uint32_t num,
@@ -232,17 +234,16 @@ snadnejsi implementaci vytvorim pro vypocet vlastni funkci <code>opt_computation
         );
 </code></pre>
 
-<p>Kompilator stale nemuze tento program vektorizovat. Nyni hlasi nepodporovanou
-operaci:</p>
+<h4>loop fission</h4>
+
+<p>Kompilator stale nemuze program vektorizovat kvuli nepodporovane operaci.</p>
 
 <pre><code>not vectorized: relevant stmt not supported: _30 = 2 &lt;&lt; _29;
 </code></pre>
 
-<h4>loop fission</h4>
-
-<p>Je treba se teto operace zbavit. To v tomto pripade lze pomoci transformace
-loop fision. Zbytecne stale dokola pocitam hodnotu <code>2 ^ n</code>, ktera se v
-prubehu vypoctu nemeni. Vypocitam ji tedy pre telem hlavnich <code>for</code> cyklu:</p>
+<p>V kodu se zbytecne dokola pocita hodnota <code>2 ^ n</code>, ktera se v prubehu vypoctu
+nemeni. Pomoci transformace <em>loop fision</em> ji vypocitam pred hlavnimi
+<code>for</code> cykly.</p>
 
 <pre><code>for (size_t j = 0; j &lt; num; ++j)
     n[j] = 2 &lt;&lt; (n[j] - 1);
@@ -252,19 +253,64 @@ for (size_t i = 0; i &lt; k; ++i) {
         x[j] = (a[j] * x[j] + b[j]) % n[j];
 </code></pre>
 
-<p>todo zpomaleni</p>
+<p><img src="img/opt-fission.svg" alt="loop fission" title="" /></p>
 
 <h4>vektorizace</h4>
 
-<p>AVX bohuzel nepodporuje modulo operator:</p>
+<p>AVX nepodporuje ani modulo operator:</p>
 
 <pre><code>not vectorized: relevant stmt not supported: _40 = _37 % _39;
 </code></pre>
 
-<p>Modulo lze nahradit nasobenim inverze cisla. Abych mohl tuto optimalizaci
-provest musim pole <code>n</code> prevest z datoveho typu <code>uint32_t</code> na typ <code>float</code>.</p>
+<p>Modulo nahradim nasobenim inverzi cisla. Pole <code>n</code> prevest z datoveho typu
+<code>uint32_t</code> na <code>float</code> a upravim provadene operace.</p>
 
-<h4>memory alignment</h4>
+<pre><code>for (size_t j = 0; j &lt; num; ++j)
+    n[j] = 1.f / std::exp2(n[j]);
+
+for (size_t i = 0; i &lt; k; ++i) {
+    for (size_t j = 0; j &lt; num; ++j) {
+        x[j] = a[j] * x[j] + b[j];
+        x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
+</code></pre>
+
+<p>Konecne kompilator vnitrni cyklus vektorizuje:</p>
+
+<pre><code>loop vectorized
+</code></pre>
+
+<p>Podle kompilatoru je velikost pouziteho vektoru 4. Take v asembleru jsou
+pouzity xmm registry a ne ymm registry. To znamena, ze jedna operace se
+provadi se ctyrmi 32 bitovymi integery (dohromady 128 bitu). AVX ma registy
+256 bitove, ale pro integerove operace podporuje pouze 128 bitove operace.</p>
+
+<p>Vektorizovany program je nejvykonnejsi ze vsech, prestoze se zvysil pocet
+operaci ve zdrojovem kodu.</p>
+
+<p><img src="img/opt-vec.svg" alt="vectorization" title="" /></p>
+
+<h4>memory alignment a <code>-ffast-math</code></h4>
+
+<p>Dale optimalizuji zarovnani poli v pameti. Kompilator vedle hlasky o
+vektorizaci zobrazuje:</p>
 
 <pre><code>loop peeled for vectorization to enhance alignment
 </code></pre>
+
+<p>Pole alokuji 32 bajtove zarovnane podle doporuceni v
+<a href="https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions">Introduction to Intel AVX</a>.
+Pouziji funkci <code>aligned_alloc()</code> a kompilatoru predam tuto informaci funkci
+<code>__builtin_assume_aligned()</code>. Vzorovy kod pro alokaci pole a:</p>
+
+<pre><code>*a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
+</code></pre>
+
+<p>Ve funkci <code>opt_computation()</code>:</p>
+
+<pre><code>a = (uint32_t *)__builtin_assume_aligned(a, 32);
+</code></pre>
+
+<p>Program provadi nektere operace s cisli v plovouci radove carce. Operace s nimi
+muzu zrychlit prepinacem <code>-ffast-math</code>.</p>
+
+<p><img src="img/opt-fast-math.svg" alt="vectorization" title="" /></p>
