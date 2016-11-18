@@ -28,7 +28,7 @@
 #$ -pe ompi 1
 
 # Do not change.
-#$ -q gpu_long.q
+#$ -q gpu_short.q
 
 for N in `seq 5000000 5000000 50000000`
 do
