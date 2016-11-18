@@ -27,12 +27,20 @@ if __name__ == '__main__':
     n2, t2 = read_file('opt-measure/opt-interchange.sh.o84762')
     y2 = normalize(n2, t2);
 
+    n3, t3 = read_file('opt-measure/opt-fission.sh.o84768')
+    y3 = normalize(n3, t3);
+
+    n4, t4 = read_file('opt-measure/opt-vec.sh.o84774')
+    y4 = normalize(n4, t4);
+
     # EDIT
-    plt.title('loop interchange')
+    plt.title('vectorization')
     plt.plot(n1, y1, 'g.-', label='population count')
     plt.plot(n2, y2, 'r.-', label='loop interchange')
+    plt.plot(n3, y3, 'y.-', label='loop fission')
+    plt.plot(n4, y4, 'c.-', label='vectorization')
 
-    plt.legend(loc='best')
+    plt.legend(loc='lower left')
 
     plt.ylabel('n / t [s ^ -1]')
     plt.xlabel('n - pocet linearnich generatoru')
