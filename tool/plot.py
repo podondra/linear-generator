@@ -21,23 +21,18 @@ def normalize(n, t):
     return out
 
 if __name__ == '__main__':
-    n1, t1 = read_file('opt-measure/opt-popcount.sh.o84757')
-    y1 = normalize(n1, t1);
-
-    n2, t2 = read_file('opt-measure/opt-interchange.sh.o84762')
+    n2, t2 = read_file('opt-measure/fast-math.sh.o84785')
     y2 = normalize(n2, t2);
 
-    n3, t3 = read_file('opt-measure/opt-fission.sh.o84768')
+    n3, t3 = read_file('opt-measure/opt-vec-align.sh.o84778')
     y3 = normalize(n3, t3);
 
     n4, t4 = read_file('opt-measure/opt-vec.sh.o84774')
     y4 = normalize(n4, t4);
 
-    # EDIT
-    plt.title('vectorization')
-    plt.plot(n1, y1, 'g.-', label='population count')
-    plt.plot(n2, y2, 'r.-', label='loop interchange')
-    plt.plot(n3, y3, 'y.-', label='loop fission')
+    plt.title('vektorizace')
+    plt.plot(n2, y2, 'm.-', label='-ffast-math')
+    plt.plot(n3, y3, 'k.-', label='memory alignment')
     plt.plot(n4, y4, 'c.-', label='vectorization')
 
     plt.legend(loc='lower left')
