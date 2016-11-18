@@ -24,13 +24,13 @@ if __name__ == '__main__':
     n1, t1 = read_file('opt-measure/opt-popcount.sh.o84757')
     y1 = normalize(n1, t1);
 
-    n2, t2 = read_file('seq-measure/seq-long.sh.o84746')
+    n2, t2 = read_file('opt-measure/opt-interchange.sh.o84762')
     y2 = normalize(n2, t2);
 
     # EDIT
-    plt.title('population count')
+    plt.title('loop interchange')
     plt.plot(n1, y1, 'g.-', label='population count')
-    plt.plot(n2, y2, 'b.-', label='population count')
+    plt.plot(n2, y2, 'r.-', label='loop interchange')
 
     plt.legend(loc='best')
 
