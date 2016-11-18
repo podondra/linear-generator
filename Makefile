@@ -17,7 +17,7 @@ seq.o: src/seq.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $<
 
 opt.o: src/opt.cc src/random.h
-	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx
+	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math
 
 doc:
 	markdown README.md > index.html
