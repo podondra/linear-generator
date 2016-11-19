@@ -10,7 +10,7 @@
 
 #ifdef PAPI
 #include <papi.h>
-#define NUM_EVENTS 2
+#define NUM_EVENTS 3
 #endif
 
 using namespace std;
@@ -119,7 +119,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     start = chrono::high_resolution_clock::now();
 
 #ifdef PAPI
-    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM };
+    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA };
     long_long values[NUM_EVENTS];
 
     /* start counting events */
@@ -136,6 +136,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
 
     fprintf(stdout, "%lld ", values[0]);
     fprintf(stdout, "%lld ", values[1]);
+    fprintf(stdout, "%lld ", values[2]);
 #endif
 
     /* end time measurement */
