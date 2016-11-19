@@ -28,10 +28,10 @@
 #$ -pe ompi 1
 
 # Do not change.
-#$ -q gpu_long.q
+#$ -q gpu_short.q
 
 for N in `seq 5000000 5000000 50000000`
 do
-    printf "%d " "$N"
-    ../../lg --seq -k 100 -n "$N" 2> /dev/null
+	printf "%d " "$N"
+	../lg --opt -k 100 -n "$N" 2> /dev/null
 done

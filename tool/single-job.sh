@@ -30,8 +30,4 @@
 # Do not change.
 #$ -q gpu_short.q
 
-for N in `seq 5000000 5000000 50000000`
-do
-	printf "%d " "$N"
-	../../lg --opt -k 100 -n "$N" 2> /dev/null
-done
+../lg --opt -k 100 -n 50000000 2> /dev/null
