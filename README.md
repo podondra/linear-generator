@@ -300,8 +300,7 @@ GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
 optimalizaci generovani kodu.
 
 Profilovaci data jsem vygeneroval prepinacem `-fprofile-generate` na
-50000000 linearnich generatorech. `-fprofile-use` data pouzije pri kompilaci.
+50000000 linearnich generatorech. Program kompilovany s `-fprofile-use`
+(data se pouziji pri kompilaci) bohuzel zhorsi rychlost vypoctu.
 
-Bohuzel doslo ke zhorseni vykonosti.
-
-TODO graf.
+![tripruchodova optimalizace](img/opt-tripruchodova.svg)

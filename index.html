@@ -1,6 +1,6 @@
 <h1>linearni generatory</h1>
 
-<p><a href="&#x6D;&#97;&#105;&#108;&#116;&#x6F;:p&#111;&#x64;&#x73;&#x7A;&#111;&#x6E;d&#64;&#x66;&#105;&#x74;&#x2E;&#x63;&#118;&#117;&#x74;.&#99;&#x7A;">p&#111;&#x64;&#x73;&#x7A;&#111;&#x6E;d&#64;&#x66;&#105;&#x74;&#x2E;&#x63;&#118;&#117;&#x74;.&#99;&#x7A;</a></p>
+<p><a href="&#x6D;a&#x69;&#x6C;&#116;&#111;:&#x70;&#111;&#100;&#115;&#122;&#x6F;&#x6E;&#100;&#64;&#102;&#x69;&#116;&#x2E;&#99;v&#x75;&#116;&#46;c&#x7A;">&#x70;&#111;&#100;&#115;&#122;&#x6F;&#x6E;&#100;&#64;&#102;&#x69;&#116;&#x2E;&#99;v&#x75;&#116;&#46;c&#x7A;</a></p>
 
 <h2>kapitola 1</h2>
 
@@ -314,3 +314,14 @@ Pouziji funkci <code>aligned_alloc()</code> a kompilatoru predam tuto informaci 
 muzu zrychlit prepinacem <code>-ffast-math</code>.</p>
 
 <p><img src="img/opt-fast-math.svg" alt="vectorization" title="" /></p>
+
+<h4>tripruchodova optimalizace</h4>
+
+<p>GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
+optimalizaci generovani kodu.</p>
+
+<p>Profilovaci data jsem vygeneroval prepinacem <code>-fprofile-generate</code> na
+50000000 linearnich generatorech. Program kompilovany s <code>-fprofile-use</code>
+(data se pouziji pri kompilaci) bohuzel zhorsi rychlost vypoctu.</p>
+
+<p><img src="img/opt-tripruchodova.svg" alt="tripruchodova optimalizace" title="" /></p>
