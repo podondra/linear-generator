@@ -3,39 +3,36 @@
 import matplotlib.pyplot as plt
 
 def read_file(name):
-    n = []
-    t = []
+    x = []
+    y = []
     with open(name) as f:
         for line in f:
             d = line.split()
-            n.append(int(d[0]))
-            t.append(float(d[1]))
+            x.append(int(d[0]))
+            y.append(float(d[1]))
 
-    return n, t
+    return x, y
 
-def normalize(n, t):
+def normalize(x, y):
     out = []
-    for i in range(len(t)):
-        out.append(float(n[i]) / float(t[i]))
+    for i in range(len(x)):
+        out.append(float(x[i]) / float(y[i]))
 
     return out
 
 if __name__ == '__main__':
-    n2, t2 = read_file('opt-measure/fast-math.sh.o84785')
-    y2 = normalize(n2, t2);
+    n, c = read_file('multiple-job.sh.o85040')
+    c = normalize(c, n)
 
-    n3, t3 = read_file('opt-measure/m32.sh.o84974')
-    y3 = normalize(n3, t3);
-
-    plt.title('-m32')
-    plt.plot(n2, y2, 'm.-', label='-ffast-math')
-    plt.plot(n3, y3, 'g.-', label='-m32')
+    plt.title('L1 cache misses')
+    plt.plot(n, c, '.-', label='papi')
 
     plt.legend(loc='best')
 
-    plt.ylabel('n / t [s ^ -1]')
     plt.xlabel('n - pocet linearnich generatoru')
+    plt.ylabel('L1 cache misses')
 
     plt.grid(True)
 
-    plt.savefig('sample.svg', bbox_inches='tight')
+    plt.show()
+    #plt.savefig('sample.svg', bbox_inches='tight')
