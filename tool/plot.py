@@ -24,12 +24,12 @@ if __name__ == '__main__':
     n2, t2 = read_file('opt-measure/fast-math.sh.o84785')
     y2 = normalize(n2, t2);
 
-    n3, t3 = read_file('opt-measure/profile.sh.o84973')
+    n3, t3 = read_file('opt-measure/m32.sh.o84974')
     y3 = normalize(n3, t3);
 
-    plt.title('tripruchodova optimalizace')
+    plt.title('-m32')
     plt.plot(n2, y2, 'm.-', label='-ffast-math')
-    plt.plot(n3, y3, 'k.-', label='-fprofile-use')
+    plt.plot(n3, y3, 'g.-', label='-m32')
 
     plt.legend(loc='best')
 
