@@ -119,7 +119,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     start = chrono::high_resolution_clock::now();
 
 #ifdef PAPI
-    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_LD_INS };
+    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM };
     long_long values[NUM_EVENTS];
 
     /* start counting events */
@@ -134,8 +134,8 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
         return 0;
 
-    fprintf(stdout, "level 1 data cache misses %lld\n", values[0]);
-    fprintf(stdout, "load instructions %lld\n", values[1]);
+    fprintf(stdout, "%lld ", values[0]);
+    fprintf(stdout, "%lld ", values[1]);
 #endif
 
     /* end time measurement */
