@@ -8,6 +8,11 @@
 #include <random>
 #include "random.h"
 
+#ifdef PAPI
+#include <papi.h>
+#define NUM_EVENTS 2
+#endif
+
 using namespace std;
 
 void opt_computation(
@@ -113,7 +118,25 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* start time measurement */
     start = chrono::high_resolution_clock::now();
 
+#ifdef PAPI
+    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_LD_INS };
+    long_long values[NUM_EVENTS];
+
+    /* start counting events */
+    if (PAPI_start_counters(Events, NUM_EVENTS) != PAPI_OK)
+        return 0;
+#endif
+
     opt_computation(num, k, c, d, e, a, b, n, x, min, max, count);
+
+#ifdef PAPI
+    /* Stop counting events */
+    if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
+        return 0;
+
+    fprintf(stdout, "level 1 data cache misses %lld\n", values[0]);
+    fprintf(stdout, "load instructions %lld\n", values[1]);
+#endif
 
     /* end time measurement */
     end = chrono::high_resolution_clock::now();
