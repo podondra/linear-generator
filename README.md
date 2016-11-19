@@ -293,3 +293,15 @@ Program provadi nektere operace s cisli v plovouci radove carce. Operace s nimi
 muzu zrychlit prepinacem `-ffast-math`.
 
 ![vectorization](img/opt-fast-math.svg)
+
+#### tripruchodova optimalizace ####
+
+GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
+optimalizaci generovani kodu.
+
+Profilovaci data jsem vygeneroval prepinacem `-fprofile-generate` na
+50000000 linearnich generatorech. `-fprofile-use` data pouzije pri kompilaci.
+
+Bohuzel doslo ke zhorseni vykonosti.
+
+TODO graf.
