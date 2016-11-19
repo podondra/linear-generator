@@ -24,18 +24,14 @@ if __name__ == '__main__':
     n2, t2 = read_file('opt-measure/fast-math.sh.o84785')
     y2 = normalize(n2, t2);
 
-    n3, t3 = read_file('opt-measure/opt-vec-align.sh.o84778')
+    n3, t3 = read_file('opt-measure/profile.sh.o84973')
     y3 = normalize(n3, t3);
 
-    n4, t4 = read_file('opt-measure/opt-vec.sh.o84774')
-    y4 = normalize(n4, t4);
-
-    plt.title('vektorizace')
+    plt.title('tripruchodova optimalizace')
     plt.plot(n2, y2, 'm.-', label='-ffast-math')
-    plt.plot(n3, y3, 'k.-', label='memory alignment')
-    plt.plot(n4, y4, 'c.-', label='vectorization')
+    plt.plot(n3, y3, 'k.-', label='-fprofile-use')
 
-    plt.legend(loc='lower right')
+    plt.legend(loc='best')
 
     plt.ylabel('n / t [s ^ -1]')
     plt.xlabel('n - pocet linearnich generatoru')
