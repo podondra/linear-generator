@@ -5,9 +5,6 @@ ARCH = -march=ivybridge
 CXX = g++ -std=c++11 $(ARCH)
 
 all: $(OBJ)
-	$(CXX) $(DIAG) $(OBJ) -o lg
-
-papi: lg.o random.o seq.o papi-opt.o
 	$(CXX) $(DIAG) $(OBJ) -o lg -L/usr/lib64 -lpapi
 
 lg.o: src/lg.cc src/seq.h src/opt.h
@@ -20,9 +17,6 @@ seq.o: src/seq.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $<
 
 opt.o: src/opt.cc src/random.h
-	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math
-
-papi-opt.o: src/opt.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include
 
