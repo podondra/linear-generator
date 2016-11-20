@@ -14,6 +14,8 @@
 #define NUM_EVENTS 3
 #endif
 
+#define BF 1000
+
 using namespace std;
 
 void opt_computation(
@@ -22,33 +24,28 @@ void opt_computation(
         uint32_t c,
         uint32_t d,
         uint32_t e,
-        uint32_t *__restrict__ p_a,
-        uint32_t *__restrict__ p_b,
-        float *__restrict__ p_n,
-        uint32_t *__restrict__ p_x,
-        uint32_t *__restrict__ p_min,
-        uint32_t *__restrict__ p_max,
-        uint32_t *__restrict__ p_count
+        uint32_t *__restrict__ a,
+        uint32_t *__restrict__ b,
+        float    *__restrict__ n,
+        uint32_t *__restrict__ x,
+        uint32_t *__restrict__ min,
+        uint32_t *__restrict__ max,
+        uint32_t *__restrict__ count
         ) {
-    uint32_t *a, *b, *x, *min, *max, *count;
-
-    float *n = (float *)__builtin_assume_aligned(p_n, 32);
+    n = (float *)__builtin_assume_aligned(n, 32);
     for (size_t j = 0; j < num; ++j)
         n[j] = 1.f / std::exp2(n[j]);
 
-    uint32_t dist;
-    for (size_t i = 0; i < k; ++i) {
-        a = (uint32_t *)__builtin_assume_aligned(p_a, 32);
-        b = (uint32_t *)__builtin_assume_aligned(p_b, 32);
-        n = (float *)__builtin_assume_aligned(p_n, 32);
-        x = (uint32_t *)__builtin_assume_aligned(p_x, 32);
-        min = (uint32_t *)__builtin_assume_aligned(p_min, 32);
-        max = (uint32_t *)__builtin_assume_aligned(p_max, 32);
-        count = (uint32_t *)__builtin_assume_aligned(p_count, 32);
+    a = (uint32_t *)__builtin_assume_aligned(a, 32);
+    b = (uint32_t *)__builtin_assume_aligned(b, 32);
+    x = (uint32_t *)__builtin_assume_aligned(x, 32);
+    min = (uint32_t *)__builtin_assume_aligned(min, 32);
+    max = (uint32_t *)__builtin_assume_aligned(max, 32);
+    count = (uint32_t *)__builtin_assume_aligned(count, 32);
 
-        /* for each linear generator */
-#define BF 1000
-        for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+    uint32_t dist;
+    for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+        for (size_t i = 0; i < k; ++i) {
             for (size_t j = 0; j < BF; ++j) {
                 /* compute next value */
                 x[j] = a[j] * x[j] + b[j];
@@ -67,14 +64,17 @@ void opt_computation(
                 min[j] = (min[j] < dist) ? min[j] : dist;
                 max[j] = (max[j] > dist) ? max[j] : dist;
             }
-            a += BF;
-            b += BF;
-            x += BF;
-            n += BF;
-            min += BF;
-            max += BF;
-            count += BF;
         }
+        a += BF;
+        b += BF;
+        x += BF;
+        n += BF;
+        min += BF;
+        max += BF;
+        count += BF;
+    }
+
+    for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < num % BF; ++j) {
             /* compute next value */
             x[j] = a[j] * x[j] + b[j];
