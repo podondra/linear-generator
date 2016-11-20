@@ -3,15 +3,19 @@
 import matplotlib.pyplot as plt
 
 def read_file(name):
-    x = []
-    y = []
+    cdm = []
+    cda = []
+    l1 = []
+    n = []
     with open(name) as f:
         for line in f:
             d = line.split()
-            x.append(int(d[0]))
-            y.append(float(d[1]))
+            n.append(int(d[0]))
+            l1.append(int(d[1]))
+            cdm.append(int(d[2]))
+            cda.append(int(d[3]))
 
-    return x, y
+    return cdm, cda, n, l1
 
 def normalize(x, y):
     out = []
@@ -21,18 +25,20 @@ def normalize(x, y):
     return out
 
 if __name__ == '__main__':
-    n, c = read_file('multiple-job.sh.o85040')
-    c = normalize(c, n)
+    cdm, cda, n, l1 = read_file('multiple-long-job.sh.o85062')
+    ratio = normalize(cdm, cda)
 
-    plt.title('L1 cache misses')
-    plt.plot(n, c, '.-', label='papi')
-
-    plt.legend(loc='best')
-
+    plt.subplot(211)
+    plt.plot(n, ratio, '.-', label='TODO')
     plt.xlabel('n - pocet linearnich generatoru')
-    plt.ylabel('L1 cache misses')
-
+    plt.ylabel('L2 cache misses ratio')
     plt.grid(True)
 
-    plt.show()
-    #plt.savefig('sample.svg', bbox_inches='tight')
+    plt.subplot(212)
+    plt.plot(n, l1, 'r.-', label='L1 cache misses')
+    plt.xlabel('n - pocet linearnich generatoru')
+    plt.ylabel('L1 cache misses')
+    plt.grid(True)
+
+    #plt.show()
+    plt.savefig('sample.svg', bbox_inches='tight')
