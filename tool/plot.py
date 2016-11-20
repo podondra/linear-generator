@@ -25,19 +25,26 @@ def normalize(x, y):
     return out
 
 if __name__ == '__main__':
-    cdm, cda, n, l1 = read_file('multiple-long-job.sh.o85062')
+    cdm, cda, n, l1 = read_file('cache.sh.o85062')
     ratio = normalize(cdm, cda)
 
+    opt_cdm, opt_cda, opt_n, opt_l1 = read_file('cache-bf-1000.sh.o85600')
+    opt_ratio = normalize(opt_cdm, opt_cda)
+
     plt.subplot(211)
-    plt.plot(n, ratio, '.-', label='TODO')
+    plt.plot(n, ratio, '.-', label='bez loop tiling')
+    plt.plot(opt_n, opt_ratio, '.-', label='loop tilig')
     plt.xlabel('n - pocet linearnich generatoru')
     plt.ylabel('L2 cache misses ratio')
+    plt.legend(loc='best')
     plt.grid(True)
 
     plt.subplot(212)
-    plt.plot(n, l1, 'r.-', label='L1 cache misses')
+    plt.plot(n, l1, '.-', label='bez loop tiling')
+    plt.plot(opt_n, opt_l1, '.-', label='loop tiling')
     plt.xlabel('n - pocet linearnich generatoru')
     plt.ylabel('L1 cache misses')
+    plt.legend(loc='best')
     plt.grid(True)
 
     #plt.show()
