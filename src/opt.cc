@@ -22,31 +22,34 @@ void opt_computation(
         uint32_t c,
         uint32_t d,
         uint32_t e,
-        uint32_t *__restrict__ a,
-        uint32_t *__restrict__ b,
-        float *__restrict__ n,
-        uint32_t *__restrict__ x,
-        uint32_t *__restrict__ min,
-        uint32_t *__restrict__ max,
-        uint32_t *__restrict__ count
+        uint32_t *__restrict__ p_a,
+        uint32_t *__restrict__ p_b,
+        float *__restrict__ p_n,
+        uint32_t *__restrict__ p_x,
+        uint32_t *__restrict__ p_min,
+        uint32_t *__restrict__ p_max,
+        uint32_t *__restrict__ p_count
         ) {
-    a = (uint32_t *)__builtin_assume_aligned(a, 32);
-    b = (uint32_t *)__builtin_assume_aligned(b, 32);
-    n = (float *)__builtin_assume_aligned(n, 32);
-    x = (uint32_t *)__builtin_assume_aligned(x, 32);
-    min = (uint32_t *)__builtin_assume_aligned(min, 32);
-    max = (uint32_t *)__builtin_assume_aligned(max, 32);
-    count = (uint32_t *)__builtin_assume_aligned(count, 32);
+    uint32_t *a, *b, *x, *min, *max, *count;
 
+    float *n = (float *)__builtin_assume_aligned(p_n, 32);
     for (size_t j = 0; j < num; ++j)
         n[j] = 1.f / std::exp2(n[j]);
 
     uint32_t dist;
-#define BF 1000
     for (size_t i = 0; i < k; ++i) {
+        a = (uint32_t *)__builtin_assume_aligned(p_a, 32);
+        b = (uint32_t *)__builtin_assume_aligned(p_b, 32);
+        n = (float *)__builtin_assume_aligned(p_n, 32);
+        x = (uint32_t *)__builtin_assume_aligned(p_x, 32);
+        min = (uint32_t *)__builtin_assume_aligned(p_min, 32);
+        max = (uint32_t *)__builtin_assume_aligned(p_max, 32);
+        count = (uint32_t *)__builtin_assume_aligned(p_count, 32);
+
         /* for each linear generator */
-        for (size_t j1 = 0; j1 < num; j1 += BF) {
-            for (size_t j = j1; j < j1 + BF && j < num; ++j) {
+#define BF 1000
+        for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+            for (size_t j = 0; j < BF; ++j) {
                 /* compute next value */
                 x[j] = a[j] * x[j] + b[j];
                 x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
@@ -64,6 +67,31 @@ void opt_computation(
                 min[j] = (min[j] < dist) ? min[j] : dist;
                 max[j] = (max[j] > dist) ? max[j] : dist;
             }
+            a += BF;
+            b += BF;
+            x += BF;
+            n += BF;
+            min += BF;
+            max += BF;
+            count += BF;
+        }
+        for (size_t j = 0; j < num % BF; ++j) {
+            /* compute next value */
+            x[j] = a[j] * x[j] + b[j];
+            x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
+
+            /* check if x is in interval */
+            count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
+
+            /* compute hamming distance */
+            dist = x[j] ^ e;
+            dist = dist - ((dist >> 1) & 0x55555555);
+            dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
+            dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+
+            /* check minimal hamming distance */
+            min[j] = (min[j] < dist) ? min[j] : dist;
+            max[j] = (max[j] > dist) ? max[j] : dist;
         }
     }
 }
