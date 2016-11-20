@@ -7,6 +7,7 @@ def read_file(name):
     cda = []
     l1 = []
     n = []
+    t = []
     with open(name) as f:
         for line in f:
             d = line.split()
@@ -14,8 +15,9 @@ def read_file(name):
             l1.append(int(d[1]))
             cdm.append(int(d[2]))
             cda.append(int(d[3]))
+            t.append(float(d[4]))
 
-    return cdm, cda, n, l1
+    return cdm, cda, n, l1, t
 
 def normalize(x, y):
     out = []
@@ -25,25 +27,23 @@ def normalize(x, y):
     return out
 
 if __name__ == '__main__':
-    cdm, cda, n, l1 = read_file('cache.sh.o85062')
+    cdm, cda, n, l1, t = read_file('cache.sh.o85062')
     ratio = normalize(cdm, cda)
 
-    opt_cdm, opt_cda, opt_n, opt_l1 = read_file('cache-bf-1000.sh.o85600')
+    opt_cdm, opt_cda, opt_n, opt_l1, opt_t = read_file('cache-bf-1000.sh.o85600')
     opt_ratio = normalize(opt_cdm, opt_cda)
 
     plt.subplot(211)
-    plt.plot(n, ratio, '.-', label='bez loop tiling')
-    plt.plot(opt_n, opt_ratio, '.-', label='loop tilig')
+    plt.plot(opt_n, opt_ratio, '.-', label='loop tiling')
     plt.xlabel('n - pocet linearnich generatoru')
     plt.ylabel('L2 cache misses ratio')
     plt.legend(loc='best')
     plt.grid(True)
 
     plt.subplot(212)
-    plt.plot(n, l1, '.-', label='bez loop tiling')
-    plt.plot(opt_n, opt_l1, '.-', label='loop tiling')
+    plt.plot(opt_n, normalize(opt_t, n), 'g.-', label='loop tiling')
     plt.xlabel('n - pocet linearnich generatoru')
-    plt.ylabel('L1 cache misses')
+    plt.ylabel('n / t [s ^ -1]')
     plt.legend(loc='best')
     plt.grid(True)
 
