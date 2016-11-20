@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <cinttypes>
 #include <climits>
@@ -16,7 +17,7 @@
 using namespace std;
 
 void opt_computation(
-        uint32_t num,
+        size_t num,
         uint32_t k,
         uint32_t c,
         uint32_t d,
@@ -29,7 +30,6 @@ void opt_computation(
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
-    /* TODO comment */
     a = (uint32_t *)__builtin_assume_aligned(a, 32);
     b = (uint32_t *)__builtin_assume_aligned(b, 32);
     n = (float *)__builtin_assume_aligned(n, 32);
@@ -42,25 +42,28 @@ void opt_computation(
         n[j] = 1.f / std::exp2(n[j]);
 
     uint32_t dist;
+#define BF 1000
     for (size_t i = 0; i < k; ++i) {
         /* for each linear generator */
-        for (size_t j = 0; j < num; ++j) {
-            /* compute next value */
-            x[j] = a[j] * x[j] + b[j];
-            x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
+        for (size_t j1 = 0; j1 < num + BF; j1 += BF) {
+            for (size_t j = 0; j < std::min(j1 + BF - 1, num); ++j) {
+                /* compute next value */
+                x[j] = a[j] * x[j] + b[j];
+                x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
 
-            /* check if x is in interval */
-            count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
+                /* check if x is in interval */
+                count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
 
-            /* compute hamming distance */
-            dist = x[j] ^ e;
-            dist = dist - ((dist >> 1) & 0x55555555);
-            dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
-            dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+                /* compute hamming distance */
+                dist = x[j] ^ e;
+                dist = dist - ((dist >> 1) & 0x55555555);
+                dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
+                dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 
-            /* check minimal hamming distance */
-            min[j] = (min[j] < dist) ? min[j] : dist;
-            max[j] = (max[j] > dist) ? max[j] : dist;
+                /* check minimal hamming distance */
+                min[j] = (min[j] < dist) ? min[j] : dist;
+                max[j] = (max[j] > dist) ? max[j] : dist;
+            }
         }
     }
 }
