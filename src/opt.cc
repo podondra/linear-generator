@@ -45,8 +45,8 @@ void opt_computation(
 #define BF 1000
     for (size_t i = 0; i < k; ++i) {
         /* for each linear generator */
-        for (size_t j1 = 0; j1 < num + BF; j1 += BF) {
-            for (size_t j = 0; j < std::min(j1 + BF - 1, num); ++j) {
+        for (size_t j1 = 0; j1 < num; j1 += BF) {
+            for (size_t j = j1; j < j1 + BF && j < num; ++j) {
                 /* compute next value */
                 x[j] = a[j] * x[j] + b[j];
                 x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
