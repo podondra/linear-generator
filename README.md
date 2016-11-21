@@ -145,7 +145,7 @@ Tento algoritmus vypočítá Hammingovu vzdálenost 32 bitového integeru
 
 ![population count](img/opt-popcount.svg)
 
-### loop intechange ###
+### loop interchange ###
 
 Program nevyužívá vektorových instrukcí. Podporu těch instrukcí
 při kompilaci zapneme přepínačem `-mavx`.

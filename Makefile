@@ -4,6 +4,8 @@ OBJ = lg.o random.o seq.o opt.o
 ARCH = -march=ivybridge
 CXX = g++ -std=c++11 $(ARCH)
 
+.PHONY: all doc clean
+
 all: $(OBJ)
 	$(CXX) $(DIAG) $(OBJ) -o lg -L/usr/lib64 -lpapi
 
@@ -20,7 +22,6 @@ opt.o: src/opt.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include
 
-.PHONY: doc
 doc: doc/header.html README.md doc/footer.html
 	cat doc/header.html > index.html
 	markdown README.md >> index.html
