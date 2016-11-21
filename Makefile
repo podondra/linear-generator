@@ -20,8 +20,10 @@ opt.o: src/opt.cc src/random.h
 	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include
 
-doc:
-	markdown README.md > index.html
+doc: doc/header.html README.md doc/footer.html
+	cat doc/header.html > index.html
+	markdown README.md >> index.html
+	cat doc/footer.html >> index.html
 
 clean:
 	$(RM) lg *.o
