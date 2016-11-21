@@ -26,15 +26,15 @@ void opt_computation(
         uint32_t e,
         uint32_t *__restrict__ a,
         uint32_t *__restrict__ b,
-        float    *__restrict__ n,
+        uint32_t *__restrict__ n,
         uint32_t *__restrict__ x,
         uint32_t *__restrict__ min,
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
-    n = (float *)__builtin_assume_aligned(n, 32);
+    n = (uint32_t *)__builtin_assume_aligned(n, 32);
     for (size_t j = 0; j < num; ++j)
-        n[j] = 1.f / std::exp2(n[j]);
+        n[j] = (1 << n[j]) - 1;
 
     a = (uint32_t *)__builtin_assume_aligned(a, 32);
     b = (uint32_t *)__builtin_assume_aligned(b, 32);
@@ -49,8 +49,7 @@ void opt_computation(
         for (size_t i = 0; i < k; ++i) {
             for (size_t j = 0; j < BF; ++j) {
                 /* compute next value */
-                x[j] = a[j] * x[j] + b[j];
-                x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
+                x[j] = (a[j] * x[j] + b[j]) & n[j];
 
                 /* check if x is in interval */
                 count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
@@ -79,8 +78,7 @@ void opt_computation(
     for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < num % BF; ++j) {
             /* compute next value */
-            x[j] = a[j] * x[j] + b[j];
-            x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
+            x[j] = (a[j] * x[j] + b[j]) & n[j];
 
             /* check if x is in interval */
             count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
@@ -103,7 +101,7 @@ bool gen_opt(
         uint32_t num,
         uint32_t **a,
         uint32_t **b,
-        float **n,
+        uint32_t **n,
         uint32_t **x,
         uint32_t **min,
         uint32_t **max,
@@ -111,7 +109,7 @@ bool gen_opt(
         ) {
     *a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
     *b = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
-    *n = (float *)aligned_alloc(32, num * sizeof(float));
+    *n = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
     *x = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
     *min = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
     *max = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
@@ -136,8 +134,7 @@ bool gen_opt(
 
 double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
-    uint32_t *a, *b, *x, *min, *max, *count;
-    float *n;
+    uint32_t *a, *b, *x, *n, *min, *max, *count;
     if (gen_opt(engine, num, &a, &b, &n, &x, &min, &max, &count) == false) {
         fprintf(stdout, "Not enough memory.\n");
         return 0;
