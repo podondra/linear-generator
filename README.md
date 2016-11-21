@@ -1,17 +1,17 @@
-linearni generatory
+lineární generátory
 ===================
 
 <podszond@fit.cvut.cz>
 
-- [zdrojovy kod](https://github.com/podondra/linear-generator)
+- [zdrojový kód](https://github.com/podondra/linear-generator)
 - [sekvenci implementace](src/seq.cc)
-- [optimalizovana implementace](src/opt.cc)
+- [optimalizovaná implementace](src/opt.cc)
 - [Makefile](Makefile)
 
 kapitola 1
 ----------
 
-### definice problemu ###
+### definice problému ###
 
 Mějme několik `G` daných
 lineárních generátorů, každý z nich je dán parametry `a`, `b`, `n`. Generátor
@@ -24,11 +24,11 @@ konstanty `c`, `d`, `e` (pro všechny generátory stejné), najít:
 2. kolik je pro daný generátor minimální a maximální Hammingova vzdálenost
     mezi `x[i]` a parametrem `e`
 
-### popis sekvencniho algoritmu a jeho implementace ###
+### popis sekvenčního algoritmu a jeho implementace ###
 
-Sekvenci algoritmus se sklada ze dvou `for` cyklu. Vnejsi cyklus iteruje
-pres vsechny linearni generatory `G`. `G` jsou ulozeny ve
-dvourozmernem poli. V kazdem radku je trojice `uint32_t` cisel `a`, `b` a
+Sekvenci algoritmus se skládá že dvou `for` cyklu. Vnější cyklus iteruje
+přes všechny lineární generátory `G`. `G` jsou uloženy ve
+dvourozměrném poli. V každém řádku je trojice `uint32_t` čísel `a`, `b` a
 `n`.
 
     /* for each linear generator */
@@ -41,8 +41,8 @@ dvourozmernem poli. V kazdem radku je trojice `uint32_t` cisel `a`, `b` a
         min = UINT32_MAX;
         max = 0;
 
-Vnitrni cyklus pocita a zkouma jednotlive cleny posloupnosti `x[k]`
-linearniho generatoru.
+Vnitřní cyklus počítá a zkoumá jednotlivé členy posloupnosti `x[k]`
+lineárního generátoru.
 
         for (size_t j = 0; j < k; ++j) {
             /* compute next value */
@@ -66,28 +66,28 @@ linearniho generatoru.
         fprintf(stderr, "%" PRIu32 "%" PRIu32 "%" PRIu32, count, min, max);
     }
 
-#### popis implementovanych funkci ####
+#### popis implementovaných funkci ####
 
-1. `lin_gen()` pocita nasledujici clen posloupnosti. Pro umocneni
-    `2 ^ n` pouzivam operaci bitovy posun.
+1. `lin_gen()` počítá následující člen posloupnosti. Pro umocnění
+    `2 ^ n` používám operaci bitový posun.
 
         uint32_t lin_gen(uint32_t a, uint32_t x, uint32_t b, uint32_t n) {
             /* don't care about overflow */
             return (a * x + b) % (2 << (n - 1));
         }
 
-2. `is_in_interval()` provede dve porovnani a vrati `true`
-    pokud je `x` v zadanem intervalu jinak `false`.
+2. `is_in_interval()` provede dvě porovnání a vrátí `true`
+    pokud je `x` v zadaném intervalu jinak `false`.
 
         bool is_in_interval(uint32_t x, uint32_t start, uint32_t end) {
             return start <= x && x <= end;
         }
 
-3. `hamming_distance()` implementuje algoritmus pro ziskani
-    Hammingovy vzdalenosti z bitoveho or (`^`) promennych `x` a `e`
-    postupnym odebiranim bitu ve `while` cyklu. Tato implementace je datove
-    zavisla. Presto budu generovat data nahodne. Po optimalizacich bude
-    tato zavislost odstranena.
+3. `hamming_distance()` implementuje algoritmus pro získání
+    Hammingovy vzdálenosti z bitového or (`^`) proměnných `x` a `e`
+    postupným odebíráním bitů ve `while` cyklu. Tato implementace je datové
+    závislá. Přesto budu generovat data náhodně. Po optimalizacích bude
+    tato závislost odstraněna.
 
         uint32_t hamming_distance(uint32_t x, uint32_t y) {
             uint32_t distance = 0;
@@ -101,63 +101,63 @@ linearniho generatoru.
 
 ### kompilace programu ###
 
-Pro kompilaci programu pouzivam kompilator gcc. Zakladni kompilace pouziva
-prepinace:
+Pro kompilaci programu používám kompilátor gcc. Základní kompilace používá
+přepínače:
 
     g++ -std=c++11 -march=ivybridge -O3 ...
 
-`-march=ivybridge` zajisti kompilovani kodu pro vypocetni svazky Intel Xeon
-2620 v2 @ 2.1Ghz. Nastaveni jsem zjistil prikazem:
+`-march=ivybridge` zajistí kompilování kódu pro výpočetní svazky Intel Xeon
+2620 v2 @ 2.1Ghz. Nastavení jsem zjistil příkazem:
 
     gcc -march=native -Q --help=target | grep march
       -march=                           ivybridge
 
-### namerene hodnoty casove slozitost ###
+### naměřené hodnoty časově složitost ###
 
-![casova slozitost sekvencni implementace](img/seq.svg)
+![časová složitost sekvenční implementace](img/seq.svg)
 
-kapitola 2 (optimalizovana verze)
+kapitola 2 (optimalizovaná verze)
 ---------------------------------
 
-V nasledujici casti popisu optimalizece programu a analyzuji jejich
+V následující části popisu optimalizece programu a analyzuji jejich
 dopad na vykonost.
 
 ### inline funkce a population count ###
 
-Vlozenim kodu funkci v neziskam zadne zrychleni, protoze `-O3`
-nastaveni kompilatoru provede _inlining_ automaticky.
+Vložením kódu funkci v nezískám žádné zrychlení, protože `-O3`
+nastavení kompilátorů provede _inlining_ automaticky.
 
-Kod pro vypocet Hammingovy vzdalenosti je neefektvni,
-netrva konstatni dobu. Efektivnejsi implementace je pomoci _population count_:
+Kód pro výpočet Hammingovy vzdálenosti je neefektvni,
+netrvá konstatni dobu. Efektivnější implementace je pomoci _population count_:
 
     dist = x ^ e;
     dist = dist - ((dist >> 1) & 0x55555555);
     dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
     dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 
-Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
-(`uint32_t`) v konstantnim case. Program se zrychli v prumeru ctryrikrat.
+Tento algoritmus vypočítá Hammingovu vzdálenost 32 bitového integeru
+(`uint32_t`) v konstantním čase. Program se zrychlí v průměru ctryrikrat.
 
 ![population count](img/opt-popcount.svg)
 
 ### loop intechange ###
 
-Program nevyuziva vektorovych instrukci. Podporu tech instrukci
-pri kompilaci zapneme prepinacem `-mavx`.
+Program nevyužívá vektorových instrukcí. Podporu těch instrukcí
+při kompilaci zapneme přepínačem `-mavx`.
 
-V generovani vektorovych instrukci brani kompilatoru datova zavislost `x` na
-predchozi iteraci:
+V generování vektorových instrukcí brání kompilátorů datová závislost `x` na
+předchozí iteraci:
 
     x = ((a * x + b) % (2 << (n - 1)));
 
-Transformace _loop interchange_ odstrani tuto zavislost. Vnejsi cyklus bude
-iterovat pres cleny posloupnosti `x[i]` a vnitri cyklus pres vsechny
-linearni generatory.
+Transformace _loop interchange_ odstraní tuto závislost. Vnější cyklus bude
+iterovat přes členy posloupnosti `x[i]` a vnitri cyklus přes všechny
+lineární generátory.
 
 ![loop interchange](img/opt-interchange.svg)
 
-Vysledny kod viz nize. Parametry linernich generatoru ukladam v
-jednorozmernych polich.
+Výsledný kód viz níže. Parametry linernich generátorů ukládám v
+jednorozměrných polích.
 
     for (size_t i = 0; i < k; ++i) {
         /* for each linear generator */
@@ -186,13 +186,13 @@ jednorozmernych polich.
 
 ### branch-less code ###
 
-Kompilator ani tento kod nedokaze vektorizovat. Vypis prepinace
+Kompilátor ani tento kód nedokáže vektorizovat. Výpis přepínače
 `-fopt-info-vec-all` gcc:
 
     not vectorized: control flow in loop.
 
-`if` podminky brani vektorizaci. Misto nich pouziji ternarni neboli min a
-max operatory.
+`if` podmínky brání vektorizaci. Místo nich použiji ternární neboli min a
+max operátory.
 
     count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
     min[j] = (min[j] < dist) ? min[j] : dist;
@@ -200,14 +200,14 @@ max operatory.
 
 ### aliasing ###
 
-Nyni kompilator hlasi problem s _aliasingem_:
+Nyní kompilátor hlásí problém s _aliasingem_:
 
     number of versioning for alias run-time tests exceeds 10
 
-Muj program pristupuje ke kazdemu poli prave jednim ukazatelem. _Aliasing_
-vyloucim pridanim klicoveho slova `__restrict__` k pointerum. Pro
-snadnejsi implementaci vytvorim pro vypocet vlastni funkci `opt_computation()`
-s nasledujici definici:
+Můj program přistupuje ke každému poli právě jedním ukazatelem. _Aliasing_
+vyloučím přidáním klíčového slova `__restrict__` k pointerům. Pro
+snadnější implementaci vytvořím pro výpočet vlastní funkci `opt_computation()`
+s následující definici:
 
     void opt_computation(
             uint32_t num,
@@ -226,12 +226,12 @@ s nasledujici definici:
 
 ### loop fission ###
 
-Kompilator stale nemuze program vektorizovat kvuli nepodporovane operaci.
+Kompilátor stále nemůže program vektorizovat kvůli nepodporované operaci.
 
     not vectorized: relevant stmt not supported: _30 = 2 << _29;
 
-V kodu se zbytecne dokola pocita hodnota `2 ^ n`, ktera se v prubehu vypoctu
-nemeni. Pomoci transformace _loop fision_ ji vypocitam pred hlavnimi
+V kódu se zbytečně dokola počítá hodnota `2 ^ n`, která se v průběhu výpočtu
+nemění. Pomoci transformace _loop fision_ ji vypočítám před hlavními
 `for` cykly.
 
     for (size_t j = 0; j < num; ++j)
@@ -245,12 +245,12 @@ nemeni. Pomoci transformace _loop fision_ ji vypocitam pred hlavnimi
 
 ### vektorizace ###
 
-AVX nepodporuje ani modulo operator:
+AVX nepodporuje ani modulo operátor:
 
     not vectorized: relevant stmt not supported: _40 = _37 % _39;
 
-Modulo nahradim nasobenim inverzi cisla. Pole `n` prevest z datoveho typu
-`uint32_t` na `float` a upravim provadene operace.
+Modulo nahradím násobením inverzi čísla. Pole `n` převést z datového typu
+`uint32_t` na `float` a upravím prováděné operace.
 
     for (size_t j = 0; j < num; ++j)
         n[j] = 1.f / std::exp2(n[j]);
@@ -260,31 +260,31 @@ Modulo nahradim nasobenim inverzi cisla. Pole `n` prevest z datoveho typu
             x[j] = a[j] * x[j] + b[j];
             x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
 
-Konecne kompilator vnitrni cyklus vektorizuje:
+Konečné kompilátor vnitřní cyklus vektorizuje:
 
     loop vectorized
 
-Podle kompilatoru je velikost pouziteho vektoru 4. Take v asembleru jsou
-pouzity xmm registry a ne ymm registry. To znamena, ze jedna operace se
-provadi se ctyrmi 32 bitovymi integery (dohromady 128 bitu). AVX ma registy
-256 bitove, ale pro integerove operace podporuje pouze 128 bitove operace.
+Podle kompilátorů je velikost použitého vektoru 4. Také v asembleru jsou
+použity xmm registry a ne ymm registry. To znamená, že jedna operace se
+provádí se čtyřmi 32 bitovými integery (dohromady 128 bitů). AVX má registy
+256 bitové, ale pro integerove operace podporuje pouze 128 bitové operace.
 
-Vektorizovany program je nejvykonnejsi ze vsech, prestoze se zvysil pocet
-operaci ve zdrojovem kodu.
+Vektorizovany program je nejvýkonnější že všech, přestože se zvýšil počet
+operaci ve zdrojovém kódu.
 
 ![vectorization](img/opt-vec.svg)
 
 ### memory alignment a `-ffast-math` ###
 
-Dale optimalizuji zarovnani poli v pameti. Kompilator vedle hlasky o
+Dále optimalizují zarovnání poli v paměti. Kompilátor vedle hlásky o
 vektorizaci zobrazuje:
 
     loop peeled for vectorization to enhance alignment
 
-Pole alokuji 32 bajtove zarovnane podle doporuceni v
+Pole alokují 32 bajtové zarovnané podle doporučení v
 [Introduction to Intel AVX](https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions).
-Pouziji funkci `aligned_alloc()` a kompilatoru predam tuto informaci funkci
-`__builtin_assume_aligned()`. Vzorovy kod pro alokaci pole a:
+Použiji funkci `aligned_alloc()` a kompilátorů předám tuto informací funkci
+`__builtin_assume_aligned()`. Vzorový kód pro alokaci pole a:
 
     *a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
 
@@ -292,27 +292,27 @@ Ve funkci `opt_computation()`:
 
     a = (uint32_t *)__builtin_assume_aligned(a, 32);
 
-Program provadi nektere operace s cisli v plovouci radove carce. Operace s nimi
-muzu zrychlit prepinacem `-ffast-math`.
+Program provádí některé operace s čísli v plovoucí řádově čárce. Operace s nimi
+mužů zrychlit přepínačem `-ffast-math`.
 
 ![vectorization](img/opt-fast-math.svg)
 
-### tripruchodova optimalizace ###
+### třiprůchodová optimalizace ###
 
-GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
-optimalizaci generovani kodu.
+GCC podporuje možnost vygenerovani profilovacich dát a jejich použití pro
+optimalizaci generování kódu.
 
-Profilovaci data jsem vygeneroval prepinacem `-fprofile-generate` na
-50000000 linearnich generatorech. Program kompilovany s `-fprofile-use`
-(data se pouziji pri kompilaci) bohuzel zhorsi rychlost vypoctu.
+Profilovaci data jsem vygeneroval přepínačem `-fprofile-generate` na
+50000000 lineárních generátorech. Program kompilovány s `-fprofile-use`
+(data se použijí při kompilaci) bohužel zhorší rychlost výpočtu.
 
-![tripruchodova optimalizace](img/opt-tripruchodova.svg)
+![třiprůchodová optimalizace](img/opt-tripruchodova.svg)
 
 ### cache ###
 
-Pro mereni vypadku cache pouziji knihovnu PAPI. Pomoci PAPI mohu na cilove
-architekture merit datove vypadky L1 cache (`PAPI_L1_DCM`), datove vypadky
-a pristupy L2 cache (`PAPI_L2_DCM` a `PAPI_L2_DCA` resp.).
+Pro měření výpadku cache použiji knihovnu PAPI. Pomoci PAPI mohu na cílové
+architektuře měřit datové výpadky L1 cache (`PAPI_L1_DCM`), datové výpadky
+a přístupy L2 cache (`PAPI_L2_DCM` a `PAPI_L2_DCA` resp.).
 
     #ifdef PAPI
     #include <papi.h>
@@ -342,24 +342,24 @@ a pristupy L2 cache (`PAPI_L2_DCM` a `PAPI_L2_DCA` resp.).
         fprintf(stdout, "%lld ", values[2]);
     #endif
 
-Pri kompilaci je treba pouzit prepinace:
+Při kompilaci je třeba použít přepínače:
 
 - `-L/usr/lib64`
 - `-lpapi`
 - `-DPAPI`
 - `-I/usr/include`
 
-Takto upraveny program dosahuje vyuziti cache na grafu dole.
+Takto upraveny program dosahuje využití cache na grafu dole.
 
 ![cache basic](img/opt-cache-basic.svg)
 
 ### loop tiling ###
 
-V idealnim pripade je potreba optimalizovat program tak, aby do L1 cache
-nahraval spravne mnozstvi linearnich generatoru a s nimi provedl
-k iteraci bez L1 vypadku.
+V ideálním případě je potřeba optimalizovat program tak, aby do L1 cache
+nahrával správné množství lineárních generátorů a s nimi provedl
+k iteraci bez L1 výpadku.
 
-Technikou _loop tiling_ muzu tohoto castecne dosahnout.
+Technikou _loop tiling_ mužů tohoto částečně dosáhnout.
 
     /* loop tiling - main */
     for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
@@ -384,33 +384,33 @@ Technikou _loop tiling_ muzu tohoto castecne dosahnout.
         }
     }
 
-Do L1 cache pameti by mel program nahrat `BF` linearnich generatoru. S nimi
-provest vypocty a na konci dopocitat zbytek ktery se tak do L1 cache
-pameti vejde.
+Do L1 cache paměti by měl program nahrát `BF` lineárních generátorů. S nimi
+provést výpočty a na konci dopočítat zbytek který se tak do L1 cache
+paměti vejde.
 
-Pouziti pointerove aritmetiky zaruci, ze vnitrni cykly mohou iterovat od 0.
-To umozni _auto-vektorizaci_ obou nejvnitrnijsich cyklu.
+Použití pointerove aritmetiky zaručí, že vnitřní cykly mohou iterovat od 0.
+To umožní _auto-vektorizaci_ obou nejvnitrnijsich cyklu.
 
-Problem je urcit hodnotu `BF`. Nepodarilo se mi zjistit velikost cache pameti
-nasi architekturi. Predpokladam velikost 512 radek a stupen asociativity
-2 (jak je uvedeno v prednasce). Muj program pouzivar 7 poli, ktere bude cist po
-blocich. To znamena ze muze nahrat `512 * 2 = 1024` bloku. `1024 / 7 =
-146.2857` je kandidat pro `BF`. Hodnota snizim na 144, aby byla delitelna 4
-(vyhodne pro vektorizaci).
+Problém je určit hodnotu `BF`. Nepodařilo se mi zjistit velikost cache paměti
+naší architekturi. Předpokládám velikost 512 řádek a stupeň asociativity
+2 (jak je uvedeno v přednášce). Můj program pouzivar 7 poli, které bude číst po
+blocích. To znamená že může nahrát `512 * 2 = 1024` bloku. `1024 / 7 =
+146.2857` je kandidát pro `BF`. Hodnota snížím na 144, aby byla dělitelná 4
+(výhodné pro vektorizaci).
 
-Merenim se ukazalo ze nejvyhodnejsi je `BF = 72` (`#define BF 72` v kodu):
+Měřením se ukázalo že nejvýhodnější je `BF = 72` (`#define BF 72` v kódu):
 
 ![cache volba BF](img/opt-cache-bf.svg)
 
-Spravne vyuziti cache pameti opravdu program zrychli.
+Správné využití cache paměti opravdu program zrychlí.
 
-![cache volba BF](img/opt-cache-time.svg)
+![loop tiling time](img/opt-cache-time.svg)
 
 ### loop unrolling ###
 
-Pri technice _loop unrolling_ s faktorem rozbaleni 2 kompilator hlasi:  
+Při technice _loop unrolling_ s faktorem rozbalení 2 kompilátor hlásí:
 
     not vectorized: complicated access pattern.
 
-Bez vektorizace by byl program neefektivni, a proto je tuto techniku nevhodne
-pouzit.
+Bez vektorizace by byl program neefektivní, a proto je tuto techniku nevhodné
+použít.

@@ -1,17 +1,17 @@
-<h1>linearni generatory</h1>
+<h1>lineární generátory</h1>
 
-<p><a href="m&#x61;&#105;&#108;&#116;&#x6F;:&#x70;&#111;&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#102;&#105;&#116;&#46;&#x63;&#x76;&#x75;&#116;&#46;&#99;&#122;">&#x70;&#111;&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#102;&#105;&#116;&#46;&#x63;&#x76;&#x75;&#116;&#46;&#99;&#122;</a></p>
+<p><a href="&#109;&#x61;&#x69;l&#116;&#x6F;:&#x70;&#111;&#x64;&#x73;&#122;&#111;n&#100;&#64;&#x66;it&#x2E;&#x63;v&#117;&#x74;&#46;&#x63;&#122;">&#x70;&#111;&#x64;&#x73;&#122;&#111;n&#100;&#64;&#x66;it&#x2E;&#x63;v&#117;&#x74;&#46;&#x63;&#122;</a></p>
 
 <ul>
-<li><a href="https://github.com/podondra/linear-generator">zdrojovy kod</a></li>
+<li><a href="https://github.com/podondra/linear-generator">zdrojový kód</a></li>
 <li><a href="src/seq.cc">sekvenci implementace</a></li>
-<li><a href="src/opt.cc">optimalizovana implementace</a></li>
+<li><a href="src/opt.cc">optimalizovaná implementace</a></li>
 <li><a href="Makefile">Makefile</a></li>
 </ul>
 
 <h2>kapitola 1</h2>
 
-<h3>definice problemu</h3>
+<h3>definice problému</h3>
 
 <p>Mějme několik <code>G</code> daných
 lineárních generátorů, každý z nich je dán parametry <code>a</code>, <code>b</code>, <code>n</code>. Generátor
@@ -26,11 +26,11 @@ konstanty <code>c</code>, <code>d</code>, <code>e</code> (pro všechny generáto
 mezi <code>x[i]</code> a parametrem <code>e</code></li>
 </ol>
 
-<h3>popis sekvencniho algoritmu a jeho implementace</h3>
+<h3>popis sekvenčního algoritmu a jeho implementace</h3>
 
-<p>Sekvenci algoritmus se sklada ze dvou <code>for</code> cyklu. Vnejsi cyklus iteruje
-pres vsechny linearni generatory <code>G</code>. <code>G</code> jsou ulozeny ve
-dvourozmernem poli. V kazdem radku je trojice <code>uint32_t</code> cisel <code>a</code>, <code>b</code> a
+<p>Sekvenci algoritmus se skládá že dvou <code>for</code> cyklu. Vnější cyklus iteruje
+přes všechny lineární generátory <code>G</code>. <code>G</code> jsou uloženy ve
+dvourozměrném poli. V každém řádku je trojice <code>uint32_t</code> čísel <code>a</code>, <code>b</code> a
 <code>n</code>.</p>
 
 <pre><code>/* for each linear generator */
@@ -44,8 +44,8 @@ for (size_t i = 0; i &lt; num; ++i) {
     max = 0;
 </code></pre>
 
-<p>Vnitrni cyklus pocita a zkouma jednotlive cleny posloupnosti <code>x[k]</code>
-linearniho generatoru.</p>
+<p>Vnitřní cyklus počítá a zkoumá jednotlivé členy posloupnosti <code>x[k]</code>
+lineárního generátoru.</p>
 
 <pre><code>    for (size_t j = 0; j &lt; k; ++j) {
         /* compute next value */
@@ -70,29 +70,29 @@ linearniho generatoru.</p>
 }
 </code></pre>
 
-<h4>popis implementovanych funkci</h4>
+<h4>popis implementovaných funkci</h4>
 
 <ol>
-<li><p><code>lin_gen()</code> pocita nasledujici clen posloupnosti. Pro umocneni
-<code>2 ^ n</code> pouzivam operaci bitovy posun.</p>
+<li><p><code>lin_gen()</code> počítá následující člen posloupnosti. Pro umocnění
+<code>2 ^ n</code> používám operaci bitový posun.</p>
 
 <pre><code>uint32_t lin_gen(uint32_t a, uint32_t x, uint32_t b, uint32_t n) {
     /* don't care about overflow */
     return (a * x + b) % (2 &lt;&lt; (n - 1));
 }
 </code></pre></li>
-<li><p><code>is_in_interval()</code> provede dve porovnani a vrati <code>true</code>
-pokud je <code>x</code> v zadanem intervalu jinak <code>false</code>.</p>
+<li><p><code>is_in_interval()</code> provede dvě porovnání a vrátí <code>true</code>
+pokud je <code>x</code> v zadaném intervalu jinak <code>false</code>.</p>
 
 <pre><code>bool is_in_interval(uint32_t x, uint32_t start, uint32_t end) {
     return start &lt;= x &amp;&amp; x &lt;= end;
 }
 </code></pre></li>
-<li><p><code>hamming_distance()</code> implementuje algoritmus pro ziskani
-Hammingovy vzdalenosti z bitoveho or (<code>^</code>) promennych <code>x</code> a <code>e</code>
-postupnym odebiranim bitu ve <code>while</code> cyklu. Tato implementace je datove
-zavisla. Presto budu generovat data nahodne. Po optimalizacich bude
-tato zavislost odstranena.</p>
+<li><p><code>hamming_distance()</code> implementuje algoritmus pro získání
+Hammingovy vzdálenosti z bitového or (<code>^</code>) proměnných <code>x</code> a <code>e</code>
+postupným odebíráním bitů ve <code>while</code> cyklu. Tato implementace je datové
+závislá. Přesto budu generovat data náhodně. Po optimalizacích bude
+tato závislost odstraněna.</p>
 
 <pre><code>uint32_t hamming_distance(uint32_t x, uint32_t y) {
     uint32_t distance = 0;
@@ -108,35 +108,35 @@ tato zavislost odstranena.</p>
 
 <h3>kompilace programu</h3>
 
-<p>Pro kompilaci programu pouzivam kompilator gcc. Zakladni kompilace pouziva
-prepinace:</p>
+<p>Pro kompilaci programu používám kompilátor gcc. Základní kompilace používá
+přepínače:</p>
 
 <pre><code>g++ -std=c++11 -march=ivybridge -O3 ...
 </code></pre>
 
-<p><code>-march=ivybridge</code> zajisti kompilovani kodu pro vypocetni svazky Intel Xeon
-2620 v2 @ 2.1Ghz. Nastaveni jsem zjistil prikazem:</p>
+<p><code>-march=ivybridge</code> zajistí kompilování kódu pro výpočetní svazky Intel Xeon
+2620 v2 @ 2.1Ghz. Nastavení jsem zjistil příkazem:</p>
 
 <pre><code>gcc -march=native -Q --help=target | grep march
   -march=                           ivybridge
 </code></pre>
 
-<h3>namerene hodnoty casove slozitost</h3>
+<h3>naměřené hodnoty časově složitost</h3>
 
-<p><img src="img/seq.svg" alt="casova slozitost sekvencni implementace" title="" /></p>
+<p><img src="img/seq.svg" alt="časová složitost sekvenční implementace" title="" /></p>
 
-<h2>kapitola 2 (optimalizovana verze)</h2>
+<h2>kapitola 2 (optimalizovaná verze)</h2>
 
-<p>V nasledujici casti popisu optimalizece programu a analyzuji jejich
+<p>V následující části popisu optimalizece programu a analyzuji jejich
 dopad na vykonost.</p>
 
 <h3>inline funkce a population count</h3>
 
-<p>Vlozenim kodu funkci v neziskam zadne zrychleni, protoze <code>-O3</code>
-nastaveni kompilatoru provede <em>inlining</em> automaticky.</p>
+<p>Vložením kódu funkci v nezískám žádné zrychlení, protože <code>-O3</code>
+nastavení kompilátorů provede <em>inlining</em> automaticky.</p>
 
-<p>Kod pro vypocet Hammingovy vzdalenosti je neefektvni,
-netrva konstatni dobu. Efektivnejsi implementace je pomoci <em>population count</em>:</p>
+<p>Kód pro výpočet Hammingovy vzdálenosti je neefektvni,
+netrvá konstatni dobu. Efektivnější implementace je pomoci <em>population count</em>:</p>
 
 <pre><code>dist = x ^ e;
 dist = dist - ((dist &gt;&gt; 1) &amp; 0x55555555);
@@ -144,30 +144,30 @@ dist = (dist &amp; 0x33333333) + ((dist &gt;&gt; 2) &amp; 0x33333333);
 dist = (((dist + (dist &gt;&gt; 4)) &amp; 0x0F0F0F0F) * 0x01010101) &gt;&gt; 24;
 </code></pre>
 
-<p>Tento algoritmus vypocita Hammingovu vzdalenost 32 bitoveho integeru
-(<code>uint32_t</code>) v konstantnim case. Program se zrychli v prumeru ctryrikrat.</p>
+<p>Tento algoritmus vypočítá Hammingovu vzdálenost 32 bitového integeru
+(<code>uint32_t</code>) v konstantním čase. Program se zrychlí v průměru ctryrikrat.</p>
 
 <p><img src="img/opt-popcount.svg" alt="population count" title="" /></p>
 
 <h3>loop intechange</h3>
 
-<p>Program nevyuziva vektorovych instrukci. Podporu tech instrukci
-pri kompilaci zapneme prepinacem <code>-mavx</code>.</p>
+<p>Program nevyužívá vektorových instrukcí. Podporu těch instrukcí
+při kompilaci zapneme přepínačem <code>-mavx</code>.</p>
 
-<p>V generovani vektorovych instrukci brani kompilatoru datova zavislost <code>x</code> na
-predchozi iteraci:</p>
+<p>V generování vektorových instrukcí brání kompilátorů datová závislost <code>x</code> na
+předchozí iteraci:</p>
 
 <pre><code>x = ((a * x + b) % (2 &lt;&lt; (n - 1)));
 </code></pre>
 
-<p>Transformace <em>loop interchange</em> odstrani tuto zavislost. Vnejsi cyklus bude
-iterovat pres cleny posloupnosti <code>x[i]</code> a vnitri cyklus pres vsechny
-linearni generatory.</p>
+<p>Transformace <em>loop interchange</em> odstraní tuto závislost. Vnější cyklus bude
+iterovat přes členy posloupnosti <code>x[i]</code> a vnitri cyklus přes všechny
+lineární generátory.</p>
 
 <p><img src="img/opt-interchange.svg" alt="loop interchange" title="" /></p>
 
-<p>Vysledny kod viz nize. Parametry linernich generatoru ukladam v
-jednorozmernych polich.</p>
+<p>Výsledný kód viz níže. Parametry linernich generátorů ukládám v
+jednorozměrných polích.</p>
 
 <pre><code>for (size_t i = 0; i &lt; k; ++i) {
     /* for each linear generator */
@@ -197,14 +197,14 @@ jednorozmernych polich.</p>
 
 <h3>branch-less code</h3>
 
-<p>Kompilator ani tento kod nedokaze vektorizovat. Vypis prepinace
+<p>Kompilátor ani tento kód nedokáže vektorizovat. Výpis přepínače
 <code>-fopt-info-vec-all</code> gcc:</p>
 
 <pre><code>not vectorized: control flow in loop.
 </code></pre>
 
-<p><code>if</code> podminky brani vektorizaci. Misto nich pouziji ternarni neboli min a
-max operatory.</p>
+<p><code>if</code> podmínky brání vektorizaci. Místo nich použiji ternární neboli min a
+max operátory.</p>
 
 <pre><code>count[j] += (c &lt;= x[j] &amp;&amp; x[j] &lt;= d) ? 1 : 0;
 min[j] = (min[j] &lt; dist) ? min[j] : dist;
@@ -213,15 +213,15 @@ max[j] = (max[j] &gt; dist) ? max[j] : dist;
 
 <h3>aliasing</h3>
 
-<p>Nyni kompilator hlasi problem s <em>aliasingem</em>:</p>
+<p>Nyní kompilátor hlásí problém s <em>aliasingem</em>:</p>
 
 <pre><code>number of versioning for alias run-time tests exceeds 10
 </code></pre>
 
-<p>Muj program pristupuje ke kazdemu poli prave jednim ukazatelem. <em>Aliasing</em>
-vyloucim pridanim klicoveho slova <code>__restrict__</code> k pointerum. Pro
-snadnejsi implementaci vytvorim pro vypocet vlastni funkci <code>opt_computation()</code>
-s nasledujici definici:</p>
+<p>Můj program přistupuje ke každému poli právě jedním ukazatelem. <em>Aliasing</em>
+vyloučím přidáním klíčového slova <code>__restrict__</code> k pointerům. Pro
+snadnější implementaci vytvořím pro výpočet vlastní funkci <code>opt_computation()</code>
+s následující definici:</p>
 
 <pre><code>void opt_computation(
         uint32_t num,
@@ -241,13 +241,13 @@ s nasledujici definici:</p>
 
 <h3>loop fission</h3>
 
-<p>Kompilator stale nemuze program vektorizovat kvuli nepodporovane operaci.</p>
+<p>Kompilátor stále nemůže program vektorizovat kvůli nepodporované operaci.</p>
 
 <pre><code>not vectorized: relevant stmt not supported: _30 = 2 &lt;&lt; _29;
 </code></pre>
 
-<p>V kodu se zbytecne dokola pocita hodnota <code>2 ^ n</code>, ktera se v prubehu vypoctu
-nemeni. Pomoci transformace <em>loop fision</em> ji vypocitam pred hlavnimi
+<p>V kódu se zbytečně dokola počítá hodnota <code>2 ^ n</code>, která se v průběhu výpočtu
+nemění. Pomoci transformace <em>loop fision</em> ji vypočítám před hlavními
 <code>for</code> cykly.</p>
 
 <pre><code>for (size_t j = 0; j &lt; num; ++j)
@@ -262,13 +262,13 @@ for (size_t i = 0; i &lt; k; ++i) {
 
 <h3>vektorizace</h3>
 
-<p>AVX nepodporuje ani modulo operator:</p>
+<p>AVX nepodporuje ani modulo operátor:</p>
 
 <pre><code>not vectorized: relevant stmt not supported: _40 = _37 % _39;
 </code></pre>
 
-<p>Modulo nahradim nasobenim inverzi cisla. Pole <code>n</code> prevest z datoveho typu
-<code>uint32_t</code> na <code>float</code> a upravim provadene operace.</p>
+<p>Modulo nahradím násobením inverzi čísla. Pole <code>n</code> převést z datového typu
+<code>uint32_t</code> na <code>float</code> a upravím prováděné operace.</p>
 
 <pre><code>for (size_t j = 0; j &lt; num; ++j)
     n[j] = 1.f / std::exp2(n[j]);
@@ -279,33 +279,33 @@ for (size_t i = 0; i &lt; k; ++i) {
         x[j] -= ((uint32_t)(x[j] * n[j])) * n[j];
 </code></pre>
 
-<p>Konecne kompilator vnitrni cyklus vektorizuje:</p>
+<p>Konečné kompilátor vnitřní cyklus vektorizuje:</p>
 
 <pre><code>loop vectorized
 </code></pre>
 
-<p>Podle kompilatoru je velikost pouziteho vektoru 4. Take v asembleru jsou
-pouzity xmm registry a ne ymm registry. To znamena, ze jedna operace se
-provadi se ctyrmi 32 bitovymi integery (dohromady 128 bitu). AVX ma registy
-256 bitove, ale pro integerove operace podporuje pouze 128 bitove operace.</p>
+<p>Podle kompilátorů je velikost použitého vektoru 4. Také v asembleru jsou
+použity xmm registry a ne ymm registry. To znamená, že jedna operace se
+provádí se čtyřmi 32 bitovými integery (dohromady 128 bitů). AVX má registy
+256 bitové, ale pro integerove operace podporuje pouze 128 bitové operace.</p>
 
-<p>Vektorizovany program je nejvykonnejsi ze vsech, prestoze se zvysil pocet
-operaci ve zdrojovem kodu.</p>
+<p>Vektorizovany program je nejvýkonnější že všech, přestože se zvýšil počet
+operaci ve zdrojovém kódu.</p>
 
 <p><img src="img/opt-vec.svg" alt="vectorization" title="" /></p>
 
 <h3>memory alignment a <code>-ffast-math</code></h3>
 
-<p>Dale optimalizuji zarovnani poli v pameti. Kompilator vedle hlasky o
+<p>Dále optimalizují zarovnání poli v paměti. Kompilátor vedle hlásky o
 vektorizaci zobrazuje:</p>
 
 <pre><code>loop peeled for vectorization to enhance alignment
 </code></pre>
 
-<p>Pole alokuji 32 bajtove zarovnane podle doporuceni v
+<p>Pole alokují 32 bajtové zarovnané podle doporučení v
 <a href="https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions">Introduction to Intel AVX</a>.
-Pouziji funkci <code>aligned_alloc()</code> a kompilatoru predam tuto informaci funkci
-<code>__builtin_assume_aligned()</code>. Vzorovy kod pro alokaci pole a:</p>
+Použiji funkci <code>aligned_alloc()</code> a kompilátorů předám tuto informací funkci
+<code>__builtin_assume_aligned()</code>. Vzorový kód pro alokaci pole a:</p>
 
 <pre><code>*a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
 </code></pre>
@@ -315,27 +315,27 @@ Pouziji funkci <code>aligned_alloc()</code> a kompilatoru predam tuto informaci 
 <pre><code>a = (uint32_t *)__builtin_assume_aligned(a, 32);
 </code></pre>
 
-<p>Program provadi nektere operace s cisli v plovouci radove carce. Operace s nimi
-muzu zrychlit prepinacem <code>-ffast-math</code>.</p>
+<p>Program provádí některé operace s čísli v plovoucí řádově čárce. Operace s nimi
+mužů zrychlit přepínačem <code>-ffast-math</code>.</p>
 
 <p><img src="img/opt-fast-math.svg" alt="vectorization" title="" /></p>
 
-<h3>tripruchodova optimalizace</h3>
+<h3>třiprůchodová optimalizace</h3>
 
-<p>GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
-optimalizaci generovani kodu.</p>
+<p>GCC podporuje možnost vygenerovani profilovacich dát a jejich použití pro
+optimalizaci generování kódu.</p>
 
-<p>Profilovaci data jsem vygeneroval prepinacem <code>-fprofile-generate</code> na
-50000000 linearnich generatorech. Program kompilovany s <code>-fprofile-use</code>
-(data se pouziji pri kompilaci) bohuzel zhorsi rychlost vypoctu.</p>
+<p>Profilovaci data jsem vygeneroval přepínačem <code>-fprofile-generate</code> na
+50000000 lineárních generátorech. Program kompilovány s <code>-fprofile-use</code>
+(data se použijí při kompilaci) bohužel zhorší rychlost výpočtu.</p>
 
-<p><img src="img/opt-tripruchodova.svg" alt="tripruchodova optimalizace" title="" /></p>
+<p><img src="img/opt-tripruchodova.svg" alt="třiprůchodová optimalizace" title="" /></p>
 
 <h3>cache</h3>
 
-<p>Pro mereni vypadku cache pouziji knihovnu PAPI. Pomoci PAPI mohu na cilove
-architekture merit datove vypadky L1 cache (<code>PAPI_L1_DCM</code>), datove vypadky
-a pristupy L2 cache (<code>PAPI_L2_DCM</code> a <code>PAPI_L2_DCA</code> resp.).</p>
+<p>Pro měření výpadku cache použiji knihovnu PAPI. Pomoci PAPI mohu na cílové
+architektuře měřit datové výpadky L1 cache (<code>PAPI_L1_DCM</code>), datové výpadky
+a přístupy L2 cache (<code>PAPI_L2_DCM</code> a <code>PAPI_L2_DCA</code> resp.).</p>
 
 <pre><code>#ifdef PAPI
 #include &lt;papi.h&gt;
@@ -366,7 +366,7 @@ a pristupy L2 cache (<code>PAPI_L2_DCM</code> a <code>PAPI_L2_DCA</code> resp.).
 #endif
 </code></pre>
 
-<p>Pri kompilaci je treba pouzit prepinace:</p>
+<p>Při kompilaci je třeba použít přepínače:</p>
 
 <ul>
 <li><code>-L/usr/lib64</code></li>
@@ -375,17 +375,17 @@ a pristupy L2 cache (<code>PAPI_L2_DCM</code> a <code>PAPI_L2_DCA</code> resp.).
 <li><code>-I/usr/include</code></li>
 </ul>
 
-<p>Takto upraveny program dosahuje vyuziti cache na grafu dole.</p>
+<p>Takto upraveny program dosahuje využití cache na grafu dole.</p>
 
 <p><img src="img/opt-cache-basic.svg" alt="cache basic" title="" /></p>
 
 <h3>loop tiling</h3>
 
-<p>V idealnim pripade je potreba optimalizovat program tak, aby do L1 cache
-nahraval spravne mnozstvi linearnich generatoru a s nimi provedl
-k iteraci bez L1 vypadku.</p>
+<p>V ideálním případě je potřeba optimalizovat program tak, aby do L1 cache
+nahrával správné množství lineárních generátorů a s nimi provedl
+k iteraci bez L1 výpadku.</p>
 
-<p>Technikou <em>loop tiling</em> muzu tohoto castecne dosahnout.</p>
+<p>Technikou <em>loop tiling</em> mužů tohoto částečně dosáhnout.</p>
 
 <pre><code>/* loop tiling - main */
 for (size_t j1 = 0; j1 &lt; num - BF; j1 += BF) {
@@ -411,34 +411,34 @@ for (size_t i = 0; i &lt; k; ++i) {
 }
 </code></pre>
 
-<p>Do L1 cache pameti by mel program nahrat <code>BF</code> linearnich generatoru. S nimi
-provest vypocty a na konci dopocitat zbytek ktery se tak do L1 cache
-pameti vejde.</p>
+<p>Do L1 cache paměti by měl program nahrát <code>BF</code> lineárních generátorů. S nimi
+provést výpočty a na konci dopočítat zbytek který se tak do L1 cache
+paměti vejde.</p>
 
-<p>Pouziti pointerove aritmetiky zaruci, ze vnitrni cykly mohou iterovat od 0.
-To umozni <em>auto-vektorizaci</em> obou nejvnitrnijsich cyklu.</p>
+<p>Použití pointerove aritmetiky zaručí, že vnitřní cykly mohou iterovat od 0.
+To umožní <em>auto-vektorizaci</em> obou nejvnitrnijsich cyklu.</p>
 
-<p>Problem je urcit hodnotu <code>BF</code>. Nepodarilo se mi zjistit velikost cache pameti
-nasi architekturi. Predpokladam velikost 512 radek a stupen asociativity
-2 (jak je uvedeno v prednasce). Muj program pouzivar 7 poli, ktere bude cist po
-blocich. To znamena ze muze nahrat <code>512 * 2 = 1024</code> bloku. <code>1024 / 7 =
-146.2857</code> je kandidat pro <code>BF</code>. Hodnota snizim na 144, aby byla delitelna 4
-(vyhodne pro vektorizaci).</p>
+<p>Problém je určit hodnotu <code>BF</code>. Nepodařilo se mi zjistit velikost cache paměti
+naší architekturi. Předpokládám velikost 512 řádek a stupeň asociativity
+2 (jak je uvedeno v přednášce). Můj program pouzivar 7 poli, které bude číst po
+blocích. To znamená že může nahrát <code>512 * 2 = 1024</code> bloku. <code>1024 / 7 =
+146.2857</code> je kandidát pro <code>BF</code>. Hodnota snížím na 144, aby byla dělitelná 4
+(výhodné pro vektorizaci).</p>
 
-<p>Merenim se ukazalo ze nejvyhodnejsi je <code>BF = 72</code> (<code>#define BF 72</code> v kodu):</p>
+<p>Měřením se ukázalo že nejvýhodnější je <code>BF = 72</code> (<code>#define BF 72</code> v kódu):</p>
 
 <p><img src="img/opt-cache-bf.svg" alt="cache volba BF" title="" /></p>
 
-<p>Spravne vyuziti cache pameti opravdu program zrychli.</p>
+<p>Správné využití cache paměti opravdu program zrychlí.</p>
 
-<p><img src="img/opt-cache-time.svg" alt="cache volba BF" title="" /></p>
+<p><img src="img/opt-cache-time.svg" alt="loop tiling time" title="" /></p>
 
 <h3>loop unrolling</h3>
 
-<p>Pri technice <em>loop unrolling</em> s faktorem rozbaleni 2 kompilator hlasi:  </p>
+<p>Při technice <em>loop unrolling</em> s faktorem rozbalení 2 kompilátor hlásí:</p>
 
 <pre><code>not vectorized: complicated access pattern.
 </code></pre>
 
-<p>Bez vektorizace by byl program neefektivni, a proto je tuto techniku nevhodne
-pouzit.</p>
+<p>Bez vektorizace by byl program neefektivní, a proto je tuto techniku nevhodné
+použít.</p>
