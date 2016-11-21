@@ -44,6 +44,7 @@ void opt_computation(
     count = (uint32_t *)__builtin_assume_aligned(count, 32);
 
     uint32_t dist;
+    /* loop tiling - main */
     for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
         for (size_t i = 0; i < k; ++i) {
             for (size_t j = 0; j < BF; ++j) {
@@ -74,6 +75,7 @@ void opt_computation(
         count += BF;
     }
 
+    /* loop tiling - the rest */
     for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < num % BF; ++j) {
             /* compute next value */
