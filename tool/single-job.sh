@@ -30,4 +30,4 @@
 # Do not change.
 #$ -q gpu_short.q
 
-../lg --opt -k 100 -n 50000000 2> /dev/null
+../lg --opt -k 100 -n 5000000
