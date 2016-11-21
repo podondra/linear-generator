@@ -11,13 +11,14 @@ def read_file(name):
     with open(name) as f:
         for line in f:
             d = line.split()
-            n.append(int(d[0]))
-            l1.append(int(d[1]))
-            cdm.append(int(d[2]))
-            cda.append(int(d[3]))
-            t.append(float(d[4]))
+            if int(d[0]) >= 5000000:
+                n.append(int(d[0]))
+                l1.append(int(d[1]))
+                cdm.append(int(d[2]))
+                cda.append(int(d[3]))
+                t.append(float(d[4]))
 
-    return cdm, cda, n, l1, t
+    return n, l1, cdm, cda, t
 
 def normalize(x, y):
     out = []
@@ -27,21 +28,27 @@ def normalize(x, y):
     return out
 
 if __name__ == '__main__':
-    cdm, cda, n, l1, t = read_file('cache.sh.o85062')
-    ratio = normalize(cdm, cda)
+    filenames = [
+        'opt-measure/fast-math.sh.o84785',
+        'cache-measure/cache-72.sh.o85666'
+        ]
 
-    opt_cdm, opt_cda, opt_n, opt_l1, opt_t = read_file('cache-bf-1000.sh.o85600')
-    opt_ratio = normalize(opt_cdm, opt_cda)
 
-    plt.subplot(211)
-    plt.plot(opt_n, opt_ratio, '.-', label='loop tiling')
-    plt.xlabel('n - pocet linearnich generatoru')
-    plt.ylabel('L2 cache misses ratio')
-    plt.legend(loc='best')
-    plt.grid(True)
+    n, l1, dcm, dca, t = read_file(filenames[1])
+    plt.plot(n, normalize(n, t), 'k.-', label='bf = 72')
 
-    plt.subplot(212)
-    plt.plot(opt_n, normalize(opt_t, n), 'g.-', label='loop tiling')
+    n = []
+    t = []
+    with open(filenames[0]) as f:
+        for line in f:
+            d = line.split()
+            if int(d[0]) <= 40000000:
+                n.append(int(d[0]))
+                t.append(float(d[1]))
+
+    plt.plot(n, normalize(n, t), 'c.-', label='vectorizace s -ffast-math')
+
+    plt.title('casova slozitost - loop tiling')
     plt.xlabel('n - pocet linearnich generatoru')
     plt.ylabel('n / t [s ^ -1]')
     plt.legend(loc='best')
