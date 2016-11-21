@@ -14,7 +14,7 @@
 #define NUM_EVENTS 3
 #endif
 
-#define BF 1000
+#define BF 72
 
 using namespace std;
 
