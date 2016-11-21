@@ -26,7 +26,7 @@ konstanty `c`, `d`, `e` (pro všechny generátory stejné), najít:
 
 ### popis sekvenčního algoritmu a jeho implementace ###
 
-Sekvenci algoritmus se skládá že dvou `for` cyklu. Vnější cyklus iteruje
+Sekvenční algoritmus se skládá že dvou `for` cyklů. Vnější cyklus iteruje
 přes všechny lineární generátory `G`. `G` jsou uloženy ve
 dvourozměrném poli. V každém řádku je trojice `uint32_t` čísel `a`, `b` a
 `n`.
@@ -85,7 +85,7 @@ lineárního generátoru.
 
 3. `hamming_distance()` implementuje algoritmus pro získání
     Hammingovy vzdálenosti z bitového or (`^`) proměnných `x` a `e`
-    postupným odebíráním bitů ve `while` cyklu. Tato implementace je datové
+    postupným odebíráním bitů ve `while` cyklu. Tato implementace je datově
     závislá. Přesto budu generovat data náhodně. Po optimalizacích bude
     tato závislost odstraněna.
 
@@ -101,7 +101,7 @@ lineárního generátoru.
 
 ### kompilace programu ###
 
-Pro kompilaci programu používám kompilátor gcc. Základní kompilace používá
+Pro kompilaci programu používám kompilátor GCC. Základní kompilace používá
 přepínače:
 
     g++ -std=c++11 -march=ivybridge -O3 ...
@@ -114,21 +114,26 @@ přepínače:
 
 ### naměřené hodnoty časově složitost ###
 
+Doba výpočtu záleží na `k` a počtu linearních generátorů. Při zvětšování `k`
+nedochází k zvyšování potřebné paměti. Tedy není ovlivněno využití cache
+paměti. Naopak zvyšování počtu lineárních generátorů má vliv na cache paměti.
+Měřím s konstatním `k = 100` a měnícím se počtem lineárních generátorů `n`.
+
 ![časová složitost sekvenční implementace](img/seq.svg)
 
 kapitola 2 (optimalizovaná verze)
 ---------------------------------
 
-V následující části popisu optimalizece programu a analyzuji jejich
-dopad na vykonost.
+V následující části popíšu optimalizace programu a analyzuji jejich
+dopad na výkonost.
 
 ### inline funkce a population count ###
 
-Vložením kódu funkci v nezískám žádné zrychlení, protože `-O3`
+Vložením kódu funkcí nezískám žádné zrychlení, protože `-O3`
 nastavení kompilátorů provede _inlining_ automaticky.
 
-Kód pro výpočet Hammingovy vzdálenosti je neefektvni,
-netrvá konstatni dobu. Efektivnější implementace je pomoci _population count_:
+Kód pro výpočet Hammingovy vzdálenosti je neefektvní,
+netrvá konstatní dobu. Efektivnější implementace je pomoci _population count_:
 
     dist = x ^ e;
     dist = dist - ((dist >> 1) & 0x55555555);
@@ -136,7 +141,7 @@ netrvá konstatni dobu. Efektivnější implementace je pomoci _population count
     dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 
 Tento algoritmus vypočítá Hammingovu vzdálenost 32 bitového integeru
-(`uint32_t`) v konstantním čase. Program se zrychlí v průměru ctryrikrat.
+(`uint32_t`) v konstantním čase. Program se zrychlí v průměru čtryřikrát.
 
 ![population count](img/opt-popcount.svg)
 
@@ -151,10 +156,8 @@ předchozí iteraci:
     x = ((a * x + b) % (2 << (n - 1)));
 
 Transformace _loop interchange_ odstraní tuto závislost. Vnější cyklus bude
-iterovat přes členy posloupnosti `x[i]` a vnitri cyklus přes všechny
+iterovat přes členy posloupnosti `x[i]` a vnitřní cyklus přes všechny
 lineární generátory.
-
-![loop interchange](img/opt-interchange.svg)
 
 Výsledný kód viz níže. Parametry linernich generátorů ukládám v
 jednorozměrných polích.
@@ -184,15 +187,19 @@ jednorozměrných polích.
         }
     }
 
+Bohužel se zvýší paměťová náročnost programu a tento kód není vektorizovaný.
+Přesto _loop interchange_ pro některé instance problému výpočet zrychlí.
+
+![loop interchange](img/opt-interchange.svg)
+
 ### branch-less code ###
 
-Kompilátor ani tento kód nedokáže vektorizovat. Výpis přepínače
-`-fopt-info-vec-all` gcc:
+Výpis přepínače `-fopt-info-vec-all` GCC:
 
     not vectorized: control flow in loop.
 
-`if` podmínky brání vektorizaci. Místo nich použiji ternární neboli min a
-max operátory.
+`if` podmínky brání vektorizaci. Místo nich použiji ternární neboli `min` a
+`max` operátory.
 
     count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
     min[j] = (min[j] < dist) ? min[j] : dist;
@@ -241,6 +248,8 @@ nemění. Pomoci transformace _loop fision_ ji vypočítám před hlavními
         for (size_t j = 0; j < num; ++j) {
             x[j] = (a[j] * x[j] + b[j]) % n[j];
 
+Tato technika zhorší výkonnost. Zřejmu kvůli většímu počtu přístupů do paměti.
+
 ![loop fission](img/opt-fission.svg)
 
 ### vektorizace ###
@@ -249,7 +258,7 @@ AVX nepodporuje ani modulo operátor:
 
     not vectorized: relevant stmt not supported: _40 = _37 % _39;
 
-Modulo nahradím násobením inverzi čísla. Pole `n` převést z datového typu
+Modulo nahradím násobením inverzí čísla. Pole `n` převedu z datového typu
 `uint32_t` na `float` a upravím prováděné operace.
 
     for (size_t j = 0; j < num; ++j)
@@ -265,25 +274,26 @@ Konečné kompilátor vnitřní cyklus vektorizuje:
     loop vectorized
 
 Podle kompilátorů je velikost použitého vektoru 4. Také v asembleru jsou
-použity xmm registry a ne ymm registry. To znamená, že jedna operace se
-provádí se čtyřmi 32 bitovými integery (dohromady 128 bitů). AVX má registy
-256 bitové, ale pro integerove operace podporuje pouze 128 bitové operace.
+použity `xmm` registry a ne `ymm` registry. To znamená, že jedna operace se
+provádí se čtyřmi 32 bitovými integery (dohromady 128 bitů a proto pracuji s 32
+bitovým integerem). AVX má registry
+256 bitové, ale pro celočíselné operace podporuje pouze 128 bitové operace.
 
-Vektorizovany program je nejvýkonnější že všech, přestože se zvýšil počet
-operaci ve zdrojovém kódu.
+Vektorizovaný program je nejvýkonnější že všech, přestože se zvýšil počet
+operací ve zdrojovém kódu.
 
 ![vectorization](img/opt-vec.svg)
 
 ### memory alignment a `-ffast-math` ###
 
-Dále optimalizují zarovnání poli v paměti. Kompilátor vedle hlásky o
+Dále optimalizuji zarovnání polí v paměti. Kompilátor vedle hlášky o
 vektorizaci zobrazuje:
 
     loop peeled for vectorization to enhance alignment
 
-Pole alokují 32 bajtové zarovnané podle doporučení v
+Pole alokuji 32 bajtově zarovnané podle doporučení v
 [Introduction to Intel AVX](https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions).
-Použiji funkci `aligned_alloc()` a kompilátorů předám tuto informací funkci
+Použiji funkci `aligned_alloc()` a kompilátoru předám tuto informaci funkcí
 `__builtin_assume_aligned()`. Vzorový kód pro alokaci pole a:
 
     *a = (uint32_t *)aligned_alloc(32, num * sizeof(uint32_t));
@@ -297,16 +307,16 @@ mužů zrychlit přepínačem `-ffast-math`.
 
 ![vectorization](img/opt-fast-math.svg)
 
-### třiprůchodová optimalizace ###
+### tříprůchodová optimalizace ###
 
-GCC podporuje možnost vygenerovani profilovacich dát a jejich použití pro
+GCC podporuje možnost vygenerovaní profilovacích dat a jejich použití pro
 optimalizaci generování kódu.
 
-Profilovaci data jsem vygeneroval přepínačem `-fprofile-generate` na
+Profilovací data jsem vygeneroval přepínačem `-fprofile-generate` na
 50000000 lineárních generátorech. Program kompilovány s `-fprofile-use`
 (data se použijí při kompilaci) bohužel zhorší rychlost výpočtu.
 
-![třiprůchodová optimalizace](img/opt-tripruchodova.svg)
+![tříprůchodová optimalizace](img/opt-tripruchodova.svg)
 
 ### cache ###
 
@@ -349,7 +359,7 @@ Při kompilaci je třeba použít přepínače:
 - `-DPAPI`
 - `-I/usr/include`
 
-Takto upraveny program dosahuje využití cache na grafu dole.
+Takto upravený program dosahuje využití cache na grafu dole.
 
 ![cache basic](img/opt-cache-basic.svg)
 
@@ -357,7 +367,7 @@ Takto upraveny program dosahuje využití cache na grafu dole.
 
 V ideálním případě je potřeba optimalizovat program tak, aby do L1 cache
 nahrával správné množství lineárních generátorů a s nimi provedl
-k iteraci bez L1 výpadku.
+`k` iterací bez L1 výpadku.
 
 Technikou _loop tiling_ mužů tohoto částečně dosáhnout.
 
@@ -384,16 +394,16 @@ Technikou _loop tiling_ mužů tohoto částečně dosáhnout.
         }
     }
 
-Do L1 cache paměti by měl program nahrát `BF` lineárních generátorů. S nimi
-provést výpočty a na konci dopočítat zbytek který se tak do L1 cache
+Do L1 cache paměti by měl program nahrávat správný počet lineárních generátorů.
+S nimi provést výpočty a na konci dopočítat zbytek který se také do L1 cache
 paměti vejde.
 
 Použití pointerove aritmetiky zaručí, že vnitřní cykly mohou iterovat od 0.
-To umožní _auto-vektorizaci_ obou nejvnitrnijsich cyklu.
+To umožní _auto-vektorizaci_ obou nejvnitřnějších cyklu.
 
 Problém je určit hodnotu `BF`. Nepodařilo se mi zjistit velikost cache paměti
 naší architekturi. Předpokládám velikost 512 řádek a stupeň asociativity
-2 (jak je uvedeno v přednášce). Můj program pouzivar 7 poli, které bude číst po
+2 (jak je uvedeno v přednášce). Můj program použivá 7 polí, které bude číst po
 blocích. To znamená že může nahrát `512 * 2 = 1024` bloku. `1024 / 7 =
 146.2857` je kandidát pro `BF`. Hodnota snížím na 144, aby byla dělitelná 4
 (výhodné pro vektorizaci).
@@ -412,5 +422,4 @@ Při technice _loop unrolling_ s faktorem rozbalení 2 kompilátor hlásí:
 
     not vectorized: complicated access pattern.
 
-Bez vektorizace by byl program neefektivní, a proto je tuto techniku nevhodné
-použít.
+Bez vektorizace by byl program neefektivní, a proto tuto techniku nepoužiji.
