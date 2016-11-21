@@ -1,6 +1,13 @@
 <h1>linearni generatory</h1>
 
-<p><a href="&#x6D;a&#x69;&#x6C;&#116;&#111;:&#x70;&#111;&#100;&#115;&#122;&#x6F;&#x6E;&#100;&#64;&#102;&#x69;&#116;&#x2E;&#99;v&#x75;&#116;&#46;c&#x7A;">&#x70;&#111;&#100;&#115;&#122;&#x6F;&#x6E;&#100;&#64;&#102;&#x69;&#116;&#x2E;&#99;v&#x75;&#116;&#46;c&#x7A;</a></p>
+<p><a href="m&#x61;&#105;&#108;&#116;&#x6F;:&#x70;&#111;&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#102;&#105;&#116;&#46;&#x63;&#x76;&#x75;&#116;&#46;&#99;&#122;">&#x70;&#111;&#100;&#x73;&#122;o&#x6E;&#100;&#64;&#102;&#105;&#116;&#46;&#x63;&#x76;&#x75;&#116;&#46;&#99;&#122;</a></p>
+
+<ul>
+<li><a href="https://github.com/podondra/linear-generator">zdrojovy kod</a></li>
+<li><a href="src/seq.cc">sekvenci implementace</a></li>
+<li><a href="src/opt.cc">optimalizovana implementace</a></li>
+<li><a href="Makefile">Makefile</a></li>
+</ul>
 
 <h2>kapitola 1</h2>
 
@@ -120,12 +127,10 @@ prepinace:</p>
 
 <h2>kapitola 2 (optimalizovana verze)</h2>
 
-<h3>popis úprav programu a jejich implementace</h3>
-
 <p>V nasledujici casti popisu optimalizece programu a analyzuji jejich
 dopad na vykonost.</p>
 
-<h4>inline funkce a population count</h4>
+<h3>inline funkce a population count</h3>
 
 <p>Vlozenim kodu funkci v neziskam zadne zrychleni, protoze <code>-O3</code>
 nastaveni kompilatoru provede <em>inlining</em> automaticky.</p>
@@ -144,7 +149,7 @@ dist = (((dist + (dist &gt;&gt; 4)) &amp; 0x0F0F0F0F) * 0x01010101) &gt;&gt; 24;
 
 <p><img src="img/opt-popcount.svg" alt="population count" title="" /></p>
 
-<h4>loop intechange</h4>
+<h3>loop intechange</h3>
 
 <p>Program nevyuziva vektorovych instrukci. Podporu tech instrukci
 pri kompilaci zapneme prepinacem <code>-mavx</code>.</p>
@@ -190,7 +195,7 @@ jednorozmernych polich.</p>
 }
 </code></pre>
 
-<h4>branch-less code</h4>
+<h3>branch-less code</h3>
 
 <p>Kompilator ani tento kod nedokaze vektorizovat. Vypis prepinace
 <code>-fopt-info-vec-all</code> gcc:</p>
@@ -206,7 +211,7 @@ min[j] = (min[j] &lt; dist) ? min[j] : dist;
 max[j] = (max[j] &gt; dist) ? max[j] : dist;
 </code></pre>
 
-<h4>aliasing</h4>
+<h3>aliasing</h3>
 
 <p>Nyni kompilator hlasi problem s <em>aliasingem</em>:</p>
 
@@ -234,7 +239,7 @@ s nasledujici definici:</p>
         );
 </code></pre>
 
-<h4>loop fission</h4>
+<h3>loop fission</h3>
 
 <p>Kompilator stale nemuze program vektorizovat kvuli nepodporovane operaci.</p>
 
@@ -255,7 +260,7 @@ for (size_t i = 0; i &lt; k; ++i) {
 
 <p><img src="img/opt-fission.svg" alt="loop fission" title="" /></p>
 
-<h4>vektorizace</h4>
+<h3>vektorizace</h3>
 
 <p>AVX nepodporuje ani modulo operator:</p>
 
@@ -289,7 +294,7 @@ operaci ve zdrojovem kodu.</p>
 
 <p><img src="img/opt-vec.svg" alt="vectorization" title="" /></p>
 
-<h4>memory alignment a <code>-ffast-math</code></h4>
+<h3>memory alignment a <code>-ffast-math</code></h3>
 
 <p>Dale optimalizuji zarovnani poli v pameti. Kompilator vedle hlasky o
 vektorizaci zobrazuje:</p>
@@ -315,7 +320,7 @@ muzu zrychlit prepinacem <code>-ffast-math</code>.</p>
 
 <p><img src="img/opt-fast-math.svg" alt="vectorization" title="" /></p>
 
-<h4>tripruchodova optimalizace</h4>
+<h3>tripruchodova optimalizace</h3>
 
 <p>GCC podporuje moznost vygenerovani profilovacich dat a jejich pouziti pro
 optimalizaci generovani kodu.</p>
@@ -325,3 +330,115 @@ optimalizaci generovani kodu.</p>
 (data se pouziji pri kompilaci) bohuzel zhorsi rychlost vypoctu.</p>
 
 <p><img src="img/opt-tripruchodova.svg" alt="tripruchodova optimalizace" title="" /></p>
+
+<h3>cache</h3>
+
+<p>Pro mereni vypadku cache pouziji knihovnu PAPI. Pomoci PAPI mohu na cilove
+architekture merit datove vypadky L1 cache (<code>PAPI_L1_DCM</code>), datove vypadky
+a pristupy L2 cache (<code>PAPI_L2_DCM</code> a <code>PAPI_L2_DCA</code> resp.).</p>
+
+<pre><code>#ifdef PAPI
+#include &lt;papi.h&gt;
+#define NUM_EVENTS 3
+#endif
+
+...
+
+#ifdef PAPI
+    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA };
+    long_long values[NUM_EVENTS];
+
+    /* start counting events */
+    if (PAPI_start_counters(Events, NUM_EVENTS) != PAPI_OK)
+        return 0;
+#endif
+
+    opt_computation(num, k, c, d, e, a, b, n, x, min, max, count);
+
+#ifdef PAPI
+    /* Stop counting events */
+    if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
+        return 0;
+
+    fprintf(stdout, "%lld ", values[0]);
+    fprintf(stdout, "%lld ", values[1]);
+    fprintf(stdout, "%lld ", values[2]);
+#endif
+</code></pre>
+
+<p>Pri kompilaci je treba pouzit prepinace:</p>
+
+<ul>
+<li><code>-L/usr/lib64</code></li>
+<li><code>-lpapi</code></li>
+<li><code>-DPAPI</code></li>
+<li><code>-I/usr/include</code></li>
+</ul>
+
+<p>Takto upraveny program dosahuje vyuziti cache na grafu dole.</p>
+
+<p><img src="img/opt-cache-basic.svg" alt="cache basic" title="" /></p>
+
+<h3>loop tiling</h3>
+
+<p>V idealnim pripade je potreba optimalizovat program tak, aby do L1 cache
+nahraval spravne mnozstvi linearnich generatoru a s nimi provedl
+k iteraci bez L1 vypadku.</p>
+
+<p>Technikou <em>loop tiling</em> muzu tohoto castecne dosahnout.</p>
+
+<pre><code>/* loop tiling - main */
+for (size_t j1 = 0; j1 &lt; num - BF; j1 += BF) {
+    for (size_t i = 0; i &lt; k; ++i) {
+        for (size_t j = 0; j &lt; BF; ++j) {
+            ...
+        }
+    }
+    a += BF;
+    b += BF;
+    x += BF;
+    n += BF;
+    min += BF;
+    max += BF;
+    count += BF;
+}
+
+/* loop tiling - the rest */
+for (size_t i = 0; i &lt; k; ++i) {
+    for (size_t j = 0; j &lt; num % BF; ++j) {
+        ...
+    }
+}
+</code></pre>
+
+<p>Do L1 cache pameti by mel program nahrat <code>BF</code> linearnich generatoru. S nimi
+provest vypocty a na konci dopocitat zbytek ktery se tak do L1 cache
+pameti vejde.</p>
+
+<p>Pouziti pointerove aritmetiky zaruci, ze vnitrni cykly mohou iterovat od 0.
+To umozni <em>auto-vektorizaci</em> obou nejvnitrnijsich cyklu.</p>
+
+<p>Problem je urcit hodnotu <code>BF</code>. Nepodarilo se mi zjistit velikost cache pameti
+nasi architekturi. Predpokladam velikost 512 radek a stupen asociativity
+2 (jak je uvedeno v prednasce). Muj program pouzivar 7 poli, ktere bude cist po
+blocich. To znamena ze muze nahrat <code>512 * 2 = 1024</code> bloku. <code>1024 / 7 =
+146.2857</code> je kandidat pro <code>BF</code>. Hodnota snizim na 144, aby byla delitelna 4
+(vyhodne pro vektorizaci).</p>
+
+<p>Merenim se ukazalo ze nejvyhodnejsi je <code>BF = 72</code> (<code>#define BF 72</code> v kodu):</p>
+
+<p><img src="img/opt-cache-bf.svg" alt="cache volba BF" title="" /></p>
+
+<p>Spravne vyuziti cache pameti opravdu program zrychli.</p>
+
+<p><img src="img/opt-cache-time.svg" alt="cache volba BF" title="" /></p>
+
+<h3>loop unrolling</h3>
+
+<p>Pri technice <em>loop unrolling</em> s faktorem rozbaleni 2 kompilator hlasi:  </p>
+
+<pre><code>not vectorized: complicated access pattern.
+</code></pre>
+
+<p>Bez vektorizace by byl program neefektivni, a proto je tuto techniku nevhodne
+pouzit.</p>
