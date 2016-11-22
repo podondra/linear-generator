@@ -66,7 +66,7 @@ lineárního generátoru.
         fprintf(stderr, "%" PRIu32 "%" PRIu32 "%" PRIu32, count, min, max);
     }
 
-#### popis implementovaných funkci ####
+#### popis implementovaných funkcí ####
 
 1. `lin_gen()` počítá následující člen posloupnosti. Pro umocnění
     `2 ^ n` používám operaci bitový posun.
