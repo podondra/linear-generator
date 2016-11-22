@@ -21,7 +21,8 @@ void usage(FILE *output) {
 
 int main(int argc, char *argv[]) {
     int variant_flag = 0;
-    int k = 0, num = 0;
+    int k = 0;
+    long int num = 0;
 
     /* getopt */
     while (true) {
@@ -48,10 +49,10 @@ int main(int argc, char *argv[]) {
                 usage(stderr);
                 return EXIT_SUCCESS;
             case 'k':
-                k = std::strtol(optarg, nullptr, 10);
+                k = strtol(optarg, nullptr, 10);
                 break;
             case 'n':
-                num = std::strtol(optarg, nullptr, 10);
+                num = strtol(optarg, nullptr, 10);
                 break;
             default:
                 break;
@@ -65,9 +66,10 @@ int main(int argc, char *argv[]) {
     }
 
     /* create random engine for input generation */
-    std::random_device r;
-    std::default_random_engine engine(r());
+    random_device r;
+    default_random_engine engine(r());
 
+    fprintf(stderr, "%ld ", num);
     double time = 0;
     switch (variant_flag) {
         case 0:

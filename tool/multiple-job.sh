@@ -32,6 +32,5 @@
 
 for N in `seq 5000000 5000000 50000000`
 do
-    printf "%d " "$N"
     ../lg --opt -k 100 -n "$N" > /dev/null
 done
