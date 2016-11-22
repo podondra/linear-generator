@@ -136,7 +136,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
     uint32_t *a, *b, *x, *n, *min, *max, *count;
     if (gen_opt(engine, num, &a, &b, &n, &x, &min, &max, &count) == false) {
-        fprintf(stdout, "Not enough memory.\n");
+        fprintf(stderr, "Not enough memory.\n");
         return 0;
     }
 
@@ -164,9 +164,9 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
         return 0;
 
-    fprintf(stdout, "%lld ", values[0]);
-    fprintf(stdout, "%lld ", values[1]);
-    fprintf(stdout, "%lld ", values[2]);
+    fprintf(stderr, "%lld ", values[0]);
+    fprintf(stderr, "%lld ", values[1]);
+    fprintf(stderr, "%lld ", values[2]);
 #endif
 
     /* end time measurement */
@@ -178,7 +178,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* use computed values so compiler does not exclude them */
     for (size_t i = 0; i < num; ++i)
         fprintf(
-                stderr,
+                stdout,
                 "%" PRIu32 "%" PRIu32 "%" PRIu32,
                 min[i], max[i], count[i]
                 );

@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
         switch (ch) {
             case 'h':
-                usage(stdout);
+                usage(stderr);
                 return EXIT_SUCCESS;
             case 'k':
                 k = std::strtol(optarg, nullptr, 10);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
     /* check getopt values */
     if (k == 0 || num == 0 || optind != argc) {
-        usage(stdout);
+        usage(stderr);
         return EXIT_FAILURE;
     }
 
@@ -77,12 +77,12 @@ int main(int argc, char *argv[]) {
             time = opt(&engine, num, k);
             break;
         case 2:
-            fprintf(stdout, "Not implemented yet.\n");
+            fprintf(stderr, "Not implemented yet.\n");
             break;
     }
 
     if (time != 0)
-        fprintf(stdout, "%lf\n", time);
+        fprintf(stderr, "%lf\n", time);
 
     return EXIT_SUCCESS;
 }

@@ -55,7 +55,7 @@ double seq(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
     uint32_t **linear_generators = gen_seq(engine, num);
     if (linear_generators == nullptr) {
-        fprintf(stdout, "Not enough memory.\n");
+        fprintf(stderr, "Not enough memory.\n");
         return 0;
     }
 
@@ -98,7 +98,7 @@ double seq(default_random_engine *engine, uint32_t num, uint32_t k) {
         }
 
         /* use computed values so compiler does not exclude them */
-        fprintf(stderr, "%" PRIu32 "%" PRIu32 "%" PRIu32, count, min, max);
+        fprintf(stdout, "%" PRIu32 "%" PRIu32 "%" PRIu32, count, min, max);
     }
 
     /* end time measurement */
