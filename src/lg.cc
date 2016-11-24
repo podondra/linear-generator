@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     random_device r;
     default_random_engine engine(r());
 
-    fprintf(stderr, "%ld ", num);
+    fprintf(stderr, "%ld\t", num);
     double time = 0;
     switch (variant_flag) {
         case 0:

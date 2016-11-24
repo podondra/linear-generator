@@ -11,7 +11,7 @@
 
 #ifdef PAPI
 #include <papi.h>
-#define NUM_EVENTS 3
+#define NUM_EVENTS 5
 #endif
 
 #define BF 72
@@ -149,7 +149,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     start = chrono::high_resolution_clock::now();
 
 #ifdef PAPI
-    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA };
+    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA, PAPI_L3_TCM, PAPI_L3_TCA };
     long_long values[NUM_EVENTS];
 
     /* start counting events */
@@ -164,9 +164,11 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
         return 0;
 
-    fprintf(stderr, "%lld ", values[0]);
-    fprintf(stderr, "%lld ", values[1]);
-    fprintf(stderr, "%lld ", values[2]);
+    fprintf(stderr, "%lld\t", values[0]);
+    fprintf(stderr, "%lld\t", values[1]);
+    fprintf(stderr, "%lld\t", values[2]);
+    fprintf(stderr, "%lld\t", values[3]);
+    fprintf(stderr, "%lld\t", values[4]);
 #endif
 
     /* end time measurement */
