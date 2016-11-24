@@ -423,3 +423,39 @@ Při technice _loop unrolling_ s faktorem rozbalení 2 kompilátor hlásí:
     not vectorized: complicated access pattern.
 
 Bez vektorizace by byl program neefektivní, a proto tuto techniku nepoužiji.
+
+### `&` operator ###
+
+Operaci modulo jsem dříve nahradil operacemi násobení inverzí a dolní celá
+část. Číslo použivané pro modulení je `2 ^ n`. V binární podobě je to
+číslice 1 následované určitým počtem číslic 0. Pokud od čísla odečtu jedna bude
+toto číslo v binarní podobě reprezentováno samými číslicemi 1. Můžu tedy použít
+operaci logické `&`. Spodní bity v čísle po této logické operaci odpovídají
+modulu. 
+
+    2 ^ 10 = 1024
+    2 ^ 10 = 10000000000 (bin)
+    1234 % (2 ^ 10) = 210 = 11010010
+    1234 = 10011010010 (bin)
+    (2 ^ 10) - 1 = 1111111111 (bin)
+
+      10011010010
+    &  1111111111
+    =  0011010010 = 210 (dec)
+
+Hodnoty `(2 ^ n) - 1` můžu předpočítat a v hlavním cyklu pouze indexovat
+do pole a provádět operaci `&`.
+
+    for (size_t j = 0; j < num; ++j)
+        n[j] = (1 << n[j]) - 1;
+
+    ...
+
+    for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+        for (size_t i = 0; i < k; ++i) {
+            for (size_t j = 0; j < BF; ++j) {
+                x[j] = (a[j] * x[j] + b[j]) & n[j];
+
+S touto úpravou v některých případech dosáhnu až 3,7 násobného zrychlení.
+
+![logical and](img/opt-logical-and.svg)

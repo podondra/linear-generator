@@ -10,7 +10,7 @@
 <body>
 <h1>lineární generátory</h1>
 
-<p><a href="&#109;&#97;&#x69;&#108;&#x74;&#111;:&#x70;&#111;&#x64;&#115;&#122;&#x6F;&#110;&#x64;&#64;&#x66;&#x69;&#x74;.&#x63;v&#117;&#116;&#46;&#99;&#x7A;">&#x70;&#111;&#x64;&#115;&#122;&#x6F;&#110;&#x64;&#64;&#x66;&#x69;&#x74;.&#x63;v&#117;&#116;&#46;&#99;&#x7A;</a></p>
+<p><a href="&#x6D;&#x61;il&#x74;&#x6F;:&#112;&#111;&#100;&#x73;z&#x6F;&#110;&#100;&#64;&#x66;&#x69;&#x74;&#x2E;&#99;&#118;&#117;t&#x2E;&#x63;&#x7A;">&#112;&#111;&#100;&#x73;z&#x6F;&#110;&#100;&#64;&#x66;&#x69;&#x74;&#x2E;&#99;&#118;&#117;t&#x2E;&#x63;&#x7A;</a></p>
 
 <ul>
 <li><a href="https://github.com/podondra/linear-generator">zdrojový kód</a></li>
@@ -80,7 +80,7 @@ lineárního generátoru.</p>
 }
 </code></pre>
 
-<h4>popis implementovaných funkci</h4>
+<h4>popis implementovaných funkcí</h4>
 
 <ol>
 <li><p><code>lin_gen()</code> počítá následující člen posloupnosti. Pro umocnění
@@ -461,5 +461,43 @@ blocích. To znamená že může nahrát <code>512 * 2 = 1024</code> bloku. <cod
 </code></pre>
 
 <p>Bez vektorizace by byl program neefektivní, a proto tuto techniku nepoužiji.</p>
+
+<h3><code>&amp;</code> operator</h3>
+
+<p>Operaci modulo jsem dříve nahral operacemi násobení inverzí a dolní celá
+část. Číslo použivané pro modulení je <code>2 ^ n</code>. V binární podobě je to
+číslice 1 následované určitým počtem číslic 0. Pokud od čísla odečtu jedna bude
+toto číslo v binarní podobě reprezentováno samými číslicemi 1. Můžu tedy použít
+operaci logické <code>&amp;</code>. Spodní bity v čísle po této logické operaci odpovídají
+modulu. </p>
+
+<pre><code>2 ^ 10 = 1024
+2 ^ 10 = 10000000000 (bin)
+1234 % (2 ^ 10) = 210 = 11010010
+1234 = 10011010010 (bin)
+(2 ^ 10) - 1 = 1111111111 (bin)
+
+  10011010010
+&amp;  1111111111
+=  0011010010 = 210 (dec)
+</code></pre>
+
+<p>Hodnoty <code>(2 ^ n) - 1</code> můžu předpočítat a v hlavním cyklu pouze indexovat
+do pole a provádět operaci <code>&amp;</code>.</p>
+
+<pre><code>for (size_t j = 0; j &lt; num; ++j)
+    n[j] = (1 &lt;&lt; n[j]) - 1;
+
+...
+
+for (size_t j1 = 0; j1 &lt; num - BF; j1 += BF) {
+    for (size_t i = 0; i &lt; k; ++i) {
+        for (size_t j = 0; j &lt; BF; ++j) {
+            x[j] = (a[j] * x[j] + b[j]) &amp; n[j];
+</code></pre>
+
+<p>S touto úpravou v některých případech dosáhnu až 3,7 násobného zrychlení.</p>
+
+<p><img src="img/opt-logical-and.svg" alt="logical and" title="" /></p>
 </body>
 </html>
