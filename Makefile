@@ -1,31 +1,29 @@
 SHELL = /bin/sh
-DIAG = -fdiagnostics-color -Wall
-OBJ = lg.o random.o seq.o opt.o
+CXX = g++
+CC = g++
 ARCH = -march=ivybridge
-CXX = g++ -std=c++11 $(ARCH)
+CXXFLAGS = -std=c++11 -O3 $(ARCH) -fdiagnostics-color -Wall
+LDFLAGS = -L/ust/lib64
+LDLIBS = -lpapi
+VPATH = src
+OBJ = lg.o random.o seq.o opt.o
 
-.PHONY: all doc clean
-
-all: $(OBJ)
-	$(CXX) $(DIAG) $(OBJ) -o lg -L/usr/lib64 -lpapi
+lg: $(OBJ)
 
 lg.o: src/lg.cc src/seq.h src/opt.h
-	$(CXX) $(DIAG) -O3 -c $<
-
 random.o: src/random.cc
-	$(CXX) $(DIAG) -O3 -c $<
-
 seq.o: src/seq.cc src/random.h
-	$(CXX) $(DIAG) -O3 -c $<
 
 opt.o: src/opt.cc src/random.h
-	$(CXX) $(DIAG) -O3 -c $< -fopt-info-vec-optimized -mavx -ffast-math \
+	$(CXX) $(CXXFLAGS) -c $< -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include
 
+.PHONY: doc
 doc: doc/header.html README.md doc/footer.html
 	cat doc/header.html > index.html
 	markdown README.md >> index.html
 	cat doc/footer.html >> index.html
 
+.PHONY: clean
 clean:
 	$(RM) lg *.o
