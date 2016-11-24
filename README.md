@@ -459,3 +459,25 @@ do pole a provádět operaci `&`.
 S touto úpravou v některých případech dosáhnu až 3,7 násobného zrychlení.
 
 ![logical and](img/opt-logical-and.svg)
+
+### pole modulů ###
+
+Pole `n` bude obsahovat celkem 21 opakujících se hodnot.
+Deklaruji ho staticky:
+
+    uint32_t modules[] = {
+            0x0, 0x1, 0x3, 0x7, 0xf, 0x1F, 0x3F, 0x7F, 0xFF, 0x1FF, 0x3FF,
+            0x7FF, 0xFFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF, 0x1FFFF, 0x3FFFF,
+            0x7FFFF, 0xFFFFF, 0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFF,
+            0x1FFFFFF, 0x3FFFFFF, 0x7FFFFFF, 0xFFFFFFF, 0x1FFFFFFF,
+            0x3FFFFFFF, 0x7FFFFFFF
+    };
+
+    ...
+
+    x[j] = (a[j] * x[j] + b[j]) & modules[n[j]];
+
+Kompilár kód nedokáže vektorizovat, a proto statické pole nepoužiji.
+
+    not vectorized: not suitable for gather load _99 = modules[_98];
+    bad data references.
