@@ -5,7 +5,7 @@ ARCH = -march=ivybridge
 CXXFLAGS = -std=c++11 -O3 $(ARCH) -fdiagnostics-color -Wall
 LDFLAGS = -L/ust/lib64
 LDLIBS = -lpapi
-VPATH = src
+VPATH = src tool
 OBJ = lg.o random.o seq.o opt.o
 
 lg: $(OBJ)
@@ -15,8 +15,11 @@ random.o: src/random.cc
 seq.o: src/seq.cc src/random.h
 
 opt.o: src/opt.cc src/random.h
-	$(CXX) $(CXXFLAGS) -c $< -fopt-info-vec-optimized -mavx -ffast-math \
+	$(CXX) $(CXXFLAGS) -c $< \
+	    -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include
+
+cache-info: tool/cache-info.cc
 
 .PHONY: doc
 doc: doc/header.html README.md doc/footer.html
@@ -26,4 +29,4 @@ doc: doc/header.html README.md doc/footer.html
 
 .PHONY: clean
 clean:
-	$(RM) lg *.o
+	$(RM) lg cache-info *.o

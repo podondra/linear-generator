@@ -1,5 +1,6 @@
 *.s
 lg
+cache-info
 
 # Object files
 /*.o
