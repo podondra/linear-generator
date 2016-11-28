@@ -10,7 +10,7 @@
 <body>
 <h1>lineární generátory</h1>
 
-<p><a href="&#109;&#97;&#105;&#x6C;&#116;o:&#x70;&#111;&#x64;s&#122;&#x6F;&#110;&#x64;&#64;&#x66;&#x69;&#116;&#46;&#x63;&#x76;&#117;&#116;&#46;&#x63;&#x7A;">&#x70;&#111;&#x64;s&#122;&#x6F;&#110;&#x64;&#64;&#x66;&#x69;&#116;&#46;&#x63;&#x76;&#117;&#116;&#46;&#x63;&#x7A;</a></p>
+<p><a href="&#109;&#x61;&#105;&#x6C;&#116;&#x6F;:&#112;&#x6F;d&#115;&#122;&#x6F;&#110;d&#64;&#102;&#105;&#x74;&#x2E;&#99;&#x76;&#x75;&#116;&#x2E;&#99;&#122;">&#112;&#x6F;d&#115;&#122;&#x6F;&#110;d&#64;&#102;&#105;&#x74;&#x2E;&#99;&#x76;&#x75;&#116;&#x2E;&#99;&#122;</a></p>
 
 <ul>
 <li><a href="https://github.com/podondra/linear-generator">zdrojový kód</a></li>
@@ -523,5 +523,45 @@ x[j] = (a[j] * x[j] + b[j]) &amp; modules[n[j]];
 <pre><code>not vectorized: not suitable for gather load _99 = modules[_98];
 bad data references.
 </code></pre>
+
+<h3>cache parametry</h3>
+
+<p>Pro lepsi vyuziti cache jsem naspal tento program:</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+
+int main() {
+    printf("_SC_PAGESIZE\t%ld\n", sysconf(_SC_PAGESIZE));
+    printf("_SC_LEVEL1_DCACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_SIZE));
+    printf("_SC_LEVEL1_DCACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_ASSOC));
+    printf("_SC_LEVEL1_DCACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_LINESIZE));
+    printf("_SC_LEVEL2_CACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL2_CACHE_SIZE));
+    printf("_SC_LEVEL2_CACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL2_CACHE_ASSOC));
+    printf("_SC_LEVEL2_CACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL2_CACHE_LINESIZE));
+    printf("_SC_LEVEL3_CACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL3_CACHE_SIZE));
+    printf("_SC_LEVEL3_CACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL3_CACHE_ASSOC));
+    printf("_SC_LEVEL3_CACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL3_CACHE_LINESIZE));
+    return 0;
+}
+</code></pre>
+
+<p>Vystupem je velikost stranky a vlastnisti L1, L2 a L3 cache pameti.
+A to velikost v bytech, associativita a velikost radky:</p>
+
+<pre><code>_SC_PAGESIZE    4096
+_SC_LEVEL1_DCACHE_SIZE  32768
+_SC_LEVEL1_DCACHE_ASSOC 8
+_SC_LEVEL1_DCACHE_LINESIZE  64
+_SC_LEVEL2_CACHE_SIZE   262144
+_SC_LEVEL2_CACHE_ASSOC  8
+_SC_LEVEL2_CACHE_LINESIZE   64
+_SC_LEVEL3_CACHE_SIZE   15728640
+_SC_LEVEL3_CACHE_ASSOC  20
+_SC_LEVEL3_CACHE_LINESIZE   64
+</code></pre>
+
+<p>Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
+tedy u kazdeho jadra a L3 pamet je sdilena.</p>
 </body>
 </html>

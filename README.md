@@ -481,3 +481,41 @@ Kompilár kód nedokáže vektorizovat, a proto statické pole nepoužiji.
 
     not vectorized: not suitable for gather load _99 = modules[_98];
     bad data references.
+
+### cache parametry ###
+
+Pro lepsi vyuziti cache jsem naspal tento program:
+
+    #include <stdio.h>
+    #include <unistd.h>
+
+    int main() {
+        printf("_SC_PAGESIZE\t%ld\n", sysconf(_SC_PAGESIZE));
+        printf("_SC_LEVEL1_DCACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_SIZE));
+        printf("_SC_LEVEL1_DCACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_ASSOC));
+        printf("_SC_LEVEL1_DCACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_LINESIZE));
+        printf("_SC_LEVEL2_CACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL2_CACHE_SIZE));
+        printf("_SC_LEVEL2_CACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL2_CACHE_ASSOC));
+        printf("_SC_LEVEL2_CACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL2_CACHE_LINESIZE));
+        printf("_SC_LEVEL3_CACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL3_CACHE_SIZE));
+        printf("_SC_LEVEL3_CACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL3_CACHE_ASSOC));
+        printf("_SC_LEVEL3_CACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL3_CACHE_LINESIZE));
+        return 0;
+    }
+
+Vystupem je velikost stranky a vlastnisti L1, L2 a L3 cache pameti.
+A to velikost v bytech, associativita a velikost radky:
+
+    _SC_PAGESIZE	4096
+    _SC_LEVEL1_DCACHE_SIZE	32768
+    _SC_LEVEL1_DCACHE_ASSOC	8
+    _SC_LEVEL1_DCACHE_LINESIZE	64
+    _SC_LEVEL2_CACHE_SIZE	262144
+    _SC_LEVEL2_CACHE_ASSOC	8
+    _SC_LEVEL2_CACHE_LINESIZE	64
+    _SC_LEVEL3_CACHE_SIZE	15728640
+    _SC_LEVEL3_CACHE_ASSOC	20
+    _SC_LEVEL3_CACHE_LINESIZE	64
+
+Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
+tedy u kazdeho jadra a L3 pamet je sdilena.
