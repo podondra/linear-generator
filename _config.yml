@@ -1,0 +1,8 @@
+# site setting
+description: seminar paper about code optimization
+baseurl: ""
+url: "https://podondra.cz"
+github_username: podondra
+
+# build setting
+exclude: [LICENSE, README.md, tool]

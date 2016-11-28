@@ -1,6 +1,7 @@
 *.s
 lg
 cache-info
+_site
 
 # Object files
 /*.o
