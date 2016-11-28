@@ -7,7 +7,7 @@ lineární generátory
 
 <podszond@fit.cvut.cz>
 
-- [zdrojový kód](https://github.com/podondra/linear-generator)
+- [zdrojový kód](src)
 - [sekvenci implementace](src/seq.cc)
 - [optimalizovaná implementace](src/opt.cc)
 - [Makefile](Makefile)
