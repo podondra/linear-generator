@@ -6,3 +6,5 @@ github_username: podondra
 
 # build setting
 exclude: [LICENSE, README.md, tool]
+kramdown:
+    math_engine:

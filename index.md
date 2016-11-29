@@ -437,17 +437,17 @@ toto číslo v binarní podobě reprezentováno samými číslicemi 1. Můžu te
 operaci logické `&`. Spodní bity v čísle po této logické operaci odpovídají
 modulu. 
 
-    2 ^ 10 = 1024
-    2 ^ 10 = 10000000000 (bin)
-    1234 % (2 ^ 10) = 210 = 11010010
-    1234 = 10011010010 (bin)
-    (2 ^ 10) - 1 = 1111111111 (bin)
+$$ 2^{10} = 1024 = 10000000000_2 $$
 
-      10011010010
-    &  1111111111
-    =  0011010010 = 210 (dec)
+$$ 1234 - 2^{10} = 210_{10} = 11010010_2 $$
 
-Hodnoty `(2 ^ n) - 1` můžu předpočítat a v hlavním cyklu pouze indexovat
+$$ 1234 = 10011010010_2 $$
+
+$$ 2^{10} - 1 = 1111111111_2 $$
+
+$$ 10011010010_2 \wedge 1111111111_2 = 0011010010_2 = 210_{10} $$
+
+Hodnoty $2^n - 1$ můžu předpočítat a v hlavním cyklu pouze indexovat
 do pole a provádět operaci `&`.
 
     for (size_t j = 0; j < num; ++j)
@@ -523,9 +523,3 @@ A to velikost v bytech, associativita a velikost radky:
 
 Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
 tedy u kazdeho jadra a L3 pamet je sdilena.
-
-{% raw %}
-<!-- The Normal Distribution -->
-<div class="equation" data-expr="\displaystyle
-P(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma ^2}}"></div>
-{% endraw %}
