@@ -437,17 +437,17 @@ toto číslo v binarní podobě reprezentováno samými číslicemi 1. Můžu te
 operaci logické `&`. Spodní bity v čísle po této logické operaci odpovídají
 modulu. 
 
-$$ 2^{10} = 1024 = 10000000000_2 $$
+\\[ 2^{10} = 1024 = 10000000000\_2 \\]
 
-$$ 1234 - 2^{10} = 210_{10} = 11010010_2 $$
+\\[ 1234 - 2^{10} = 210\_{10} = 11010010\_2 \\]
 
-$$ 1234 = 10011010010_2 $$
+\\[ 1234 = 10011010010\_2 \\]
 
-$$ 2^{10} - 1 = 1111111111_2 $$
+\\[ 2^{10} - 1 = 1111111111\_2 \\]
 
-$$ 10011010010_2 \wedge 1111111111_2 = 0011010010_2 = 210_{10} $$
+\\[ 10011010010\_2 \wedge 1111111111\_2 = 0011010010\_2 = 210\_{10} \\]
 
-Hodnoty $2^n - 1$ můžu předpočítat a v hlavním cyklu pouze indexovat
+Hodnoty \\(2^n - 1\\) můžu předpočítat a v hlavním cyklu pouze indexovat
 do pole a provádět operaci `&`.
 
     for (size_t j = 0; j < num; ++j)
