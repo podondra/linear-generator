@@ -523,3 +523,9 @@ A to velikost v bytech, associativita a velikost radky:
 
 Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
 tedy u kazdeho jadra a L3 pamet je sdilena.
+
+{% raw %}
+<!-- The Normal Distribution -->
+<div class="equation" data-expr="\displaystyle
+P(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma ^2}}"></div>
+{% endraw %}
