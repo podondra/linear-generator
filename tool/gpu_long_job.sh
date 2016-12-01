@@ -31,5 +31,5 @@
 #$ -q gpu_long.q
 
 for N in `seq 10000000 10000000 270000000`; do
-    ../lg --opt -k 100 -n "$N" > /dev/null
+    ../lg --par -k 100 -n "$N" > /dev/null
 done

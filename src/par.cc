@@ -10,11 +10,6 @@
 #include <random>
 #include "random.h"
 
-#ifdef PAPI
-#include <papi.h>
-#define NUM_EVENTS 5
-#endif
-
 #define BF 16
 
 using namespace std;
@@ -33,6 +28,7 @@ void par_computation(
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
+#pragma omp parallel for default(shared) num_threads(24)
     for (size_t j = 0; j < num; ++j)
         n[j] = (1 << n[j]) - 1;
 
@@ -46,7 +42,7 @@ void par_computation(
 
     uint32_t dist;
     /* loop tiling - main */
-#pragma omp parallel for default(shared) num_threads(12) \
+#pragma omp parallel for default(shared) num_threads(24) \
     private(dist, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
     for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
         p_a     = a + j1;
@@ -160,28 +156,7 @@ double par(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* start time measurement */
     start = chrono::high_resolution_clock::now();
 
-#ifdef PAPI
-    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA, PAPI_L3_TCM, PAPI_L3_TCA };
-    long_long values[NUM_EVENTS];
-
-    /* start counting events */
-    if (PAPI_start_counters(Events, NUM_EVENTS) != PAPI_OK)
-        return 0;
-#endif
-
     par_computation(num, k, c, d, e, a, b, n, x, min, max, count);
-
-#ifdef PAPI
-    /* Stop counting events */
-    if (PAPI_stop_counters(values, NUM_EVENTS) != PAPI_OK)
-        return 0;
-
-    fprintf(stderr, "%lld\t", values[0]);
-    fprintf(stderr, "%lld\t", values[1]);
-    fprintf(stderr, "%lld\t", values[2]);
-    fprintf(stderr, "%lld\t", values[3]);
-    fprintf(stderr, "%lld\t", values[4]);
-#endif
 
     /* end time measurement */
     end = chrono::high_resolution_clock::now();

@@ -22,7 +22,6 @@ opt.o: src/opt.cc src/random.h
 par.o: src/par.cc src/random.h
 	$(CXX) $(CXXFLAGS) -c $< \
 	    -fopt-info-vec-optimized -mavx -ffast-math \
-	    -DPAPI -I/usr/include \
 	    -fopenmp
 
 cache-info: tool/cache-info.cc
