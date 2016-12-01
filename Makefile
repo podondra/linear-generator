@@ -6,7 +6,7 @@ CXXFLAGS = -std=c++11 -O3 $(ARCH) -fdiagnostics-color -Wall
 LDFLAGS = -L/ust/lib64
 LDLIBS = -lpapi
 VPATH = src tool
-OBJ = lg.o random.o seq.o opt.o
+OBJ = lg.o random.o seq.o opt.o par.o
 
 lg: $(OBJ)
 
@@ -15,6 +15,11 @@ random.o: src/random.cc
 seq.o: src/seq.cc src/random.h
 
 opt.o: src/opt.cc src/random.h
+	$(CXX) $(CXXFLAGS) -c $< \
+	    -fopt-info-vec-optimized -mavx -ffast-math \
+	    -DPAPI -I/usr/include
+
+par.o: src/par.cc src/random.h
 	$(CXX) $(CXXFLAGS) -c $< \
 	    -fopt-info-vec-optimized -mavx -ffast-math \
 	    -DPAPI -I/usr/include \

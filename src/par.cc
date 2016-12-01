@@ -19,7 +19,7 @@
 
 using namespace std;
 
-void opt_computation(
+void par_computation(
         const size_t num,
         const uint32_t k,
         const uint32_t c,
@@ -109,7 +109,7 @@ void opt_computation(
     }
 }
 
-bool gen_opt(
+bool gen_par(
         std::default_random_engine *engine,
         uint32_t num,
         uint32_t **a,
@@ -145,10 +145,10 @@ bool gen_opt(
     return true;
 }
 
-double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
+double par(default_random_engine *engine, uint32_t num, uint32_t k) {
     /* read linear generators */
     uint32_t *a, *b, *x, *n, *min, *max, *count;
-    if (gen_opt(engine, num, &a, &b, &n, &x, &min, &max, &count) == false) {
+    if (gen_par(engine, num, &a, &b, &n, &x, &min, &max, &count) == false) {
         fprintf(stderr, "Not enough memory.\n");
         return 0;
     }
@@ -170,7 +170,7 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
         return 0;
 #endif
 
-    opt_computation(num, k, c, d, e, a, b, n, x, min, max, count);
+    par_computation(num, k, c, d, e, a, b, n, x, min, max, count);
 
 #ifdef PAPI
     /* Stop counting events */
