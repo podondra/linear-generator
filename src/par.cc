@@ -44,19 +44,18 @@ void par_computation(
     uint32_t *__restrict__ p_max;
     uint32_t *__restrict__ p_count;
 
-    uint32_t dist, shift;
+    uint32_t dist;
     /* loop tiling - main */
 #pragma omp parallel for default(shared) num_threads(12) \
-    private(dist, shift, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
+    private(dist, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
     for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
-        shift = BF * j1;
-        p_a     = a + shift;
-        p_b     = b + shift;
-        p_x     = x + shift;
-        p_n     = n + shift;
-        p_min   = min + shift;
-        p_max   = max + shift;
-        p_count = count + shift;
+        p_a     = a + j1;
+        p_b     = b + j1;
+        p_x     = x + j1;
+        p_n     = n + j1;
+        p_min   = min + j1;
+        p_max   = max + j1;
+        p_count = count + j1;
 
         for (size_t i = 0; i < k; ++i) {
             for (size_t j = 0; j < BF; ++j) {
@@ -80,7 +79,7 @@ void par_computation(
     }
 
     /* loop tiling - the rest */
-    shift = BF * (num / BF);
+    size_t shift = BF * (num / BF);
     p_a     = a + shift;
     p_b     = b + shift;
     p_x     = x + shift;
