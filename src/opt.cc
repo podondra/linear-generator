@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <omp.h>
 #include <random>
 #include "random.h"
 
@@ -14,84 +15,96 @@
 #define NUM_EVENTS 5
 #endif
 
-#define BF 72
+#define BF 16
 
 using namespace std;
 
 void opt_computation(
-        size_t num,
-        uint32_t k,
-        uint32_t c,
-        uint32_t d,
-        uint32_t e,
-        uint32_t *__restrict__ a,
-        uint32_t *__restrict__ b,
+        const size_t num,
+        const uint32_t k,
+        const uint32_t c,
+        const uint32_t d,
+        const uint32_t e,
+        const uint32_t *__restrict__ a,
+        const uint32_t *__restrict__ b,
         uint32_t *__restrict__ n,
         uint32_t *__restrict__ x,
         uint32_t *__restrict__ min,
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
-    n = (uint32_t *)__builtin_assume_aligned(n, 32);
     for (size_t j = 0; j < num; ++j)
         n[j] = (1 << n[j]) - 1;
 
-    a = (uint32_t *)__builtin_assume_aligned(a, 32);
-    b = (uint32_t *)__builtin_assume_aligned(b, 32);
-    x = (uint32_t *)__builtin_assume_aligned(x, 32);
-    min = (uint32_t *)__builtin_assume_aligned(min, 32);
-    max = (uint32_t *)__builtin_assume_aligned(max, 32);
-    count = (uint32_t *)__builtin_assume_aligned(count, 32);
+    const uint32_t *__restrict__ p_a;
+    const uint32_t *__restrict__ p_b;
+    const uint32_t *__restrict__ p_n;
+    uint32_t *__restrict__ p_x;
+    uint32_t *__restrict__ p_min;
+    uint32_t *__restrict__ p_max;
+    uint32_t *__restrict__ p_count;
 
-    uint32_t dist;
+    uint32_t dist, shift;
     /* loop tiling - main */
+#pragma omp parallel for default(shared) num_threads(12) \
+    private(dist, shift, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
     for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+        shift = BF * j1;
+        p_a     = a + shift;
+        p_b     = b + shift;
+        p_x     = x + shift;
+        p_n     = n + shift;
+        p_min   = min + shift;
+        p_max   = max + shift;
+        p_count = count + shift;
+
         for (size_t i = 0; i < k; ++i) {
             for (size_t j = 0; j < BF; ++j) {
                 /* compute next value */
-                x[j] = (a[j] * x[j] + b[j]) & n[j];
+                p_x[j] = (p_a[j] * p_x[j] + p_b[j]) & p_n[j];
 
                 /* check if x is in interval */
-                count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
+                p_count[j] += (c <= p_x[j] && p_x[j] <= d) ? 1 : 0;
 
                 /* compute hamming distance */
-                dist = x[j] ^ e;
+                dist = p_x[j] ^ e;
                 dist = dist - ((dist >> 1) & 0x55555555);
                 dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
                 dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 
                 /* check minimal hamming distance */
-                min[j] = (min[j] < dist) ? min[j] : dist;
-                max[j] = (max[j] > dist) ? max[j] : dist;
+                p_min[j] = (p_min[j] < dist) ? p_min[j] : dist;
+                p_max[j] = (p_max[j] > dist) ? p_max[j] : dist;
             }
         }
-        a += BF;
-        b += BF;
-        x += BF;
-        n += BF;
-        min += BF;
-        max += BF;
-        count += BF;
     }
 
     /* loop tiling - the rest */
+    shift = BF * (num / BF);
+    p_a     = a + shift;
+    p_b     = b + shift;
+    p_x     = x + shift;
+    p_n     = n + shift;
+    p_min   = min + shift;
+    p_max   = max + shift;
+    p_count = count + shift;
     for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < num % BF; ++j) {
             /* compute next value */
-            x[j] = (a[j] * x[j] + b[j]) & n[j];
+            p_x[j] = (p_a[j] * p_x[j] + p_b[j]) & p_n[j];
 
             /* check if x is in interval */
-            count[j] += (c <= x[j] && x[j] <= d) ? 1 : 0;
+            p_count[j] += (c <= p_x[j] && p_x[j] <= d) ? 1 : 0;
 
             /* compute hamming distance */
-            dist = x[j] ^ e;
+            dist = p_x[j] ^ e;
             dist = dist - ((dist >> 1) & 0x55555555);
             dist = (dist & 0x33333333) + ((dist >> 2) & 0x33333333);
             dist = (((dist + (dist >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 
             /* check minimal hamming distance */
-            min[j] = (min[j] < dist) ? min[j] : dist;
-            max[j] = (max[j] > dist) ? max[j] : dist;
+            p_min[j] = (p_min[j] < dist) ? p_min[j] : dist;
+            p_max[j] = (p_max[j] > dist) ? p_max[j] : dist;
         }
     }
 }

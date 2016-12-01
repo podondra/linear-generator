@@ -523,3 +523,20 @@ A to velikost v bytech, associativita a velikost radky:
 
 Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
 tedy u kazdeho jadra a L3 pamet je sdilena.
+
+Velikost L1 pameti je 32768 B a velikost radky je 64 B. Z toho plyne pocet
+radku:
+
+\\[32768 / 64 = 512 radek\\]
+
+Program pouziva 7 poli.
+
+\\[512 / 7 = 73\\]
+
+73 radek z kazdeho pole. A kazda radka cache obsahuje:
+
+\\[64 / 4 = 16 \\]
+
+`int32_t` cisel. To znamena hodnota BF:
+
+\\[73 * 16 = 1168\\]

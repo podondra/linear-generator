@@ -1,6 +1,6 @@
 SHELL = /bin/sh
 CXX = g++
-CC = g++
+CC = g++ -fopenmp
 ARCH = -march=ivybridge
 CXXFLAGS = -std=c++11 -O3 $(ARCH) -fdiagnostics-color -Wall
 LDFLAGS = -L/ust/lib64
@@ -17,7 +17,8 @@ seq.o: src/seq.cc src/random.h
 opt.o: src/opt.cc src/random.h
 	$(CXX) $(CXXFLAGS) -c $< \
 	    -fopt-info-vec-optimized -mavx -ffast-math \
-	    -DPAPI -I/usr/include
+	    -DPAPI -I/usr/include \
+	    -fopenmp
 
 cache-info: tool/cache-info.cc
 
