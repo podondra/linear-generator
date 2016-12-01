@@ -431,7 +431,7 @@ Bez vektorizace by byl program neefektivní, a proto tuto techniku nepoužiji.
 ### `&` operator ###
 
 Operaci modulo jsem dříve nahradil operacemi násobení inverzí a dolní celá
-část. Číslo použivané pro modulení je `2 ^ n`. V binární podobě je to
+část. Číslo použivané pro modulení je \\(2 ^ n\\). V binární podobě je to
 číslice 1 následované určitým počtem číslic 0. Pokud od čísla odečtu jedna bude
 toto číslo v binarní podobě reprezentováno samými číslicemi 1. Můžu tedy použít
 operaci logické `&`. Spodní bity v čísle po této logické operaci odpovídají
@@ -439,13 +439,13 @@ modulu.
 
 \\[ 2^{10} = 1024 = 10000000000\_2 \\]
 
-\\[ 1234 - 2^{10} = 210\_{10} = 11010010\_2 \\]
+\\[ 2^{10} - 1 = 1111111111\_2 \\]
 
 \\[ 1234 = 10011010010\_2 \\]
 
-\\[ 2^{10} - 1 = 1111111111\_2 \\]
+\\[ 1234 - 2^{10} = 210\_{10} = 11010010\_2 \\]
 
-\\[ 10011010010\_2 \wedge 1111111111\_2 = 0011010010\_2 = 210\_{10} \\]
+\\[ 10011010010\_2 \wedge 1111111111\_2 = 11010010\_2 = 210\_{10} \\]
 
 Hodnoty \\(2^n - 1\\) můžu předpočítat a v hlavním cyklu pouze indexovat
 do pole a provádět operaci `&`.
