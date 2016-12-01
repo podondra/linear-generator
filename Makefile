@@ -17,8 +17,7 @@ seq.o: src/seq.cc src/random.h
 opt.o: src/opt.cc src/random.h
 	$(CXX) $(CXXFLAGS) -c $< \
 	    -fopt-info-vec-optimized -mavx -ffast-math \
-	    -DPAPI -I/usr/include \
-	    -fopenmp
+	    -DPAPI -I/usr/include
 
 cache-info: tool/cache-info.cc
 
