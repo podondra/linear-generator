@@ -10,6 +10,7 @@ lineární generátory
 - [zdrojový kód](https://github.com/podondra/linear-generator)
 - [sekvenci implementace](src/seq.cc)
 - [optimalizovaná implementace](src/opt.cc)
+- [paralelizovaná implementace](src/par.cc)
 - [Makefile](Makefile)
 
 kapitola 1
@@ -545,12 +546,70 @@ nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
 kapitola 3 (openmp)
 -----------------------
 
-- Popis případných úprav algoritmu a jeho implementace, včetně volby
-    datových struktur
-- Tabulkově a případně graficky zpracované naměřené hodnoty časové
-    složitosti měřených instancí běhu programu s popisem instancí dat,
-    přepočet výkonnosti programu na MIPS nebo MFlops.
-- Analýza a hodnocení vlastností dané implementace programu.
+Program nyni vyuziva spravne moznosti jednoho jadra procesoru Xeon E5-2620 v2.
+Pouziva vektorove instrukce a dochazi k malo vypadkum L1 cache pameti.
+Ale architektura na ktere je program testovam ma 2 procesory a kazdy ma 6
+jader. Dalsim krokem optimalizaci je program paralelizovat.
+
+### paralelizace hlavniho cyklu ###
+
+Zrejme je paralelizovat hlavni cyklus. Protoze program pouziva metodu _loop
+tiling_ je tato uprava jednoducha. Paralelizuji vnejsi cyklus. Kazde vlakno tedy
+spocita `BF` linearnich generatoru a kdyz skonci spocita dalsi cast. Dopocitani
+zbytku iteraci _loop tiling_ paralelizovat nema smysl, protoze pocet iteraci
+tohoto cyklu bude urcite mensi nez `BF`. To znamena ze rezije na vytvoreni
+vlaken by byla zbytecne velika.
+
+    const uint32_t *__restrict__ p_a;
+    const uint32_t *__restrict__ p_b;
+    const uint32_t *__restrict__ p_n;
+    uint32_t *__restrict__ p_x;
+    uint32_t *__restrict__ p_min;
+    uint32_t *__restrict__ p_max;
+    uint32_t *__restrict__ p_count;
+
+    #pragma omp parallel for default(shared) num_threads(12) \
+        private(dist, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
+    for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
+        p_a     = a + j1;
+        p_b     = b + j1;
+        p_x     = x + j1;
+        p_n     = n + j1;
+        p_min   = min + j1;
+        p_max   = max + j1;
+        p_count = count + j1;
+
+        for (size_t i = 0; i < k; ++i) {
+            for (size_t j = 0; j < BF; ++j) {
+
+Pocet vlakem nastavim na 12, protoze pocet jader je 12 (viz vyse). Kompilaci
+provedeme s prepinacem `-fopenmp` Paralelizce
+program zrychli TODO.
+
+TODO graf.
+
+### paralelizace cyklu pro vypocet n ###
+
+Dale muze paralelizovat cyklus pro predvypocet hodnot pole `n`.
+
+    #pragma omp parallel for default(shared) num_threads(12)
+    for (size_t j = 0; j < num; ++j)
+        n[j] = (1 << n[j]) - 1;
+
+TODO graf a komentar.
+
+### zmena poctu vlaken ###
+
+Program pracuje paralelne s 12 vlanky. Jadra procesoru Xeon maji technologii
+hyperthreading. Na jednom jadre tedy mohou bezet dve vlakna zaroven. Nevyhodou
+muze byt neprokladani instrukci. To by znamenalo zpomalovani jednotlivych
+vlakem. Vyzkousim tedy program s 24 vlakny (`num_threads(24)`)
+
+TODO graf a komentar.
+
+### zarovnani pointeru ###
+
+TODO
 
 kapitola 4
 ----------
