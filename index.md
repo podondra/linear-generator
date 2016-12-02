@@ -494,7 +494,6 @@ Pro lepsi vyuziti cache jsem naspal tento program:
     #include <unistd.h>
 
     int main() {
-        printf("_SC_PAGESIZE\t%ld\n", sysconf(_SC_PAGESIZE));
         printf("_SC_LEVEL1_DCACHE_SIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_SIZE));
         printf("_SC_LEVEL1_DCACHE_ASSOC\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_ASSOC));
         printf("_SC_LEVEL1_DCACHE_LINESIZE\t%ld\n", sysconf(_SC_LEVEL1_DCACHE_LINESIZE));
@@ -510,7 +509,6 @@ Pro lepsi vyuziti cache jsem naspal tento program:
 Vystupem je velikost stranky a vlastnisti L1, L2 a L3 cache pameti.
 A to velikost v bytech, associativita a velikost radky:
 
-    _SC_PAGESIZE	4096
     _SC_LEVEL1_DCACHE_SIZE	32768
     _SC_LEVEL1_DCACHE_ASSOC	8
     _SC_LEVEL1_DCACHE_LINESIZE	64
@@ -525,18 +523,38 @@ Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
 tedy u kazdeho jadra a L3 pamet je sdilena.
 
 Velikost L1 pameti je 32768 B a velikost radky je 64 B. Z toho plyne pocet
-radku:
+radku 512 (\\(32768 / 64 = 512\\)). Program pouziva celkem 7 poli (a, b, n, x,
+min, max, count). Do L1 cache pameti by se tedy melo vyjet 73 cache radku
+kazdeho pole (\\(512 \ 7 = 73\\)). Kazda radka L1 cache obashuje 16
+`uint32_t` cisel (\\(64 / 4 = 16\\)). Parametr BF by mel mit tedy hodnotu 1168.
+Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)).
 
-\\[32768 / 64 = 512 radek\\]
+To ale zrejme nefunguje viz graf.
 
-Program pouziva 7 poli.
+TODO graf.
 
-\\[512 / 7 = 73\\]
+Zvolim tedy pristup spracovani jedne cache line v jedne iteraci rozbale cyklu.
+Velikost radky je 64 B. Tzn. 16 `uint32_t v jedne cache line. Nastavim `BF` na
+hodnotu 16. Tato zmena zapricini TODO zrychleni a klesnou i vypadky.
 
-73 radek z kazdeho pole. A kazda radka cache obsahuje:
+TODO graf.
 
-\\[64 / 4 = 16 \\]
+`BF = 16` funguje protoze nactu radek do L1 cache a pote co ho zpracuji uz ho
+nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
 
-`int32_t` cisel. To znamena hodnota BF:
+kapitola 3 (openmp)
+-----------------------
 
-\\[73 * 16 = 1168\\]
+- Popis případných úprav algoritmu a jeho implementace, včetně volby
+    datových struktur
+- Tabulkově a případně graficky zpracované naměřené hodnoty časové
+    složitosti měřených instancí běhu programu s popisem instancí dat,
+    přepočet výkonnosti programu na MIPS nebo MFlops.
+- Analýza a hodnocení vlastností dané implementace programu.
+
+kapitola 4
+----------
+
+### závěr ###
+
+TODO
