@@ -528,17 +528,18 @@ radku 512 (\\(32768 / 64 = 512\\)). Program pouziva celkem 7 poli (a, b, n, x,
 min, max, count). Do L1 cache pameti by se tedy melo vyjet 73 cache radku
 kazdeho pole (\\(512 \ 7 = 73\\)). Kazda radka L1 cache obashuje 16
 `uint32_t` cisel (\\(64 / 4 = 16\\)). Parametr BF by mel mit tedy hodnotu 1168.
-Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)).
+Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)). Cislo
+zmensim na 1152 kvuli rezerve.
 
 To ale zrejme nefunguje viz graf.
 
-TODO graf.
+![bf = 1152](img/opt-cache-l1.svg)
 
 Zvolim tedy pristup spracovani jedne cache line v jedne iteraci rozbale cyklu.
 Velikost radky je 64 B. Tzn. 16 `uint32_t v jedne cache line. Nastavim `BF` na
 hodnotu 16. Tato zmena zapricini TODO zrychleni a klesnou i vypadky.
 
-TODO graf.
+![bf = 16](img/opt-cache-linesize.svg)
 
 `BF = 16` funguje protoze nactu radek do L1 cache a pote co ho zpracuji uz ho
 nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
@@ -583,12 +584,12 @@ vlaken by byla zbytecne velika.
             for (size_t j = 0; j < BF; ++j) {
 
 Pocet vlakem nastavim na 12, protoze pocet jader je 12 (viz vyse). Kompilaci
-provedeme s prepinacem `-fopenmp` Paralelizce
-program zrychli TODO.
+provedeme s prepinacem `-fopenmp`. Paralelizce
+program zrychli asi 6 krat.
 
-TODO graf.
+![paralelizace](img/par-basic.svg)
 
-### paralelizace cyklu pro vypocet n ###
+### paralelizace cyklu pro vypocet pole `n` ###
 
 Dale muze paralelizovat cyklus pro predvypocet hodnot pole `n`.
 
@@ -596,7 +597,9 @@ Dale muze paralelizovat cyklus pro predvypocet hodnot pole `n`.
     for (size_t j = 0; j < num; ++j)
         n[j] = (1 << n[j]) - 1;
 
-TODO graf a komentar.
+![paralelni n](img/par-n.svg)
+
+TODO
 
 ### zmena poctu vlaken ###
 
