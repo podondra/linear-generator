@@ -536,8 +536,8 @@ To ale zrejme nefunguje viz graf.
 ![bf = 1152](img/opt-cache-l1.svg)
 
 Zvolim tedy pristup spracovani jedne cache line v jedne iteraci rozbale cyklu.
-Velikost radky je 64 B. Tzn. 16 `uint32_t v jedne cache line. Nastavim `BF` na
-hodnotu 16. Tato zmena zapricini TODO zrychleni a klesnou i vypadky.
+Velikost radky je 64 B. Tzn. 16 `uint32_t` v jedne cache line. Nastavim `BF` na
+hodnotu 16. Tato zmena program zrychli.
 
 ![bf = 16](img/opt-cache-linesize.svg)
 
