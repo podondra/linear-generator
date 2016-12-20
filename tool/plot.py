@@ -1,24 +1,17 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import matplotlib.pyplot as plt
 
 def read_file(name):
-    cdm = []
-    cda = []
-    l1 = []
     n = []
     t = []
     with open(name) as f:
         for line in f:
             d = line.split()
-            if int(d[0]) < 40000000:
-                n.append(int(d[0]))
-                l1.append(int(d[1]))
-                cdm.append(int(d[2]))
-                cda.append(int(d[3]))
-                t.append(float(d[4]))
+            n.append(int(d[0]))
+            t.append(float(d[1]))
 
-    return n, l1, cdm, cda, t
+    return n, t
 
 def normalize(x, y):
     out = []
@@ -29,15 +22,15 @@ def normalize(x, y):
 
 if __name__ == '__main__':
     filenames = [
-        'opt/and.sh.e86215',
-        'opt/cache-72.sh.o85666'
+        'par/12-threads.sh.e88962',
+        'par/24-threads-n.sh.e88974'
         ]
 
-    plt.title('casova slozitost - logical &')
-    n, l1, dcm, dca, t = read_file(filenames[0])
-    plt.plot(n, normalize(n, t), '.-', label='wiht logical &')
-    n, l1, dcm, dca, t = read_file(filenames[1])
-    plt.plot(n, normalize(n, t), '.-', label='bf = 72')
+    plt.title('casova slozitost - paralelizace')
+    n, t = read_file(filenames[0])
+    plt.plot(n, normalize(n, t), '.-', label='paralelizace')
+    n, t = read_file(filenames[1])
+    plt.plot(n, normalize(n, t), '.-', label='24 vlaken')
 
     plt.xlabel('n - pocet linearnich generatoru')
     plt.ylabel('n / t [s ^ -1]')

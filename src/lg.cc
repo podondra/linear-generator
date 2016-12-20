@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include "seq.h"
 #include "opt.h"
+#include "par.h"
 
 using namespace std;
 
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
             time = opt(&engine, num, k);
             break;
         case 2:
-            fprintf(stderr, "Not implemented yet.\n");
+            time = par(&engine, num, k);
             break;
     }
 
