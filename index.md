@@ -526,7 +526,7 @@ tedy u kazdeho jadra a L3 pamet je sdilena.
 Velikost L1 pameti je 32768 B a velikost radky je 64 B. Z toho plyne pocet
 radku 512 (\\(32768 / 64 = 512\\)). Program pouziva celkem 7 poli (a, b, n, x,
 min, max, count). Do L1 cache pameti by se tedy melo vyjet 73 cache radku
-kazdeho pole (\\(512 \ 7 = 73\\)). Kazda radka L1 cache obashuje 16
+kazdeho pole (\\(512 / 7 = 73\\)). Kazda radka L1 cache obashuje 16
 `uint32_t` cisel (\\(64 / 4 = 16\\)). Parametr BF by mel mit tedy hodnotu 1168.
 Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)). Cislo
 zmensim na 1152 kvuli rezerve.
