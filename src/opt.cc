@@ -149,7 +149,9 @@ double opt(default_random_engine *engine, uint32_t num, uint32_t k) {
     start = chrono::high_resolution_clock::now();
 
 #ifdef PAPI
-    int Events[NUM_EVENTS] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA, PAPI_L3_TCM, PAPI_L3_TCA };
+    int Events[NUM_EVENTS] = {
+        PAPI_L1_DCM, PAPI_L2_DCM, PAPI_L2_DCA, PAPI_L3_TCM, PAPI_L3_TCA
+    };
     long_long values[NUM_EVENTS];
 
     /* start counting events */
