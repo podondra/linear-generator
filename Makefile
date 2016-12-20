@@ -26,12 +26,6 @@ par.o: src/par.cc src/random.h
 
 cache-info: tool/cache-info.cc
 
-.PHONY: doc
-doc: doc/header.html README.md doc/footer.html
-	cat doc/header.html > index.html
-	markdown README.md >> index.html
-	cat doc/footer.html >> index.html
-
 .PHONY: clean
 clean:
 	$(RM) lg cache-info *.o
