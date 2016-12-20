@@ -20,41 +20,39 @@ void par_computation(
         const uint32_t c,
         const uint32_t d,
         const uint32_t e,
-        const uint32_t *__restrict__ a,
-        const uint32_t *__restrict__ b,
+        uint32_t *__restrict__ a,
+        uint32_t *__restrict__ b,
         uint32_t *__restrict__ n,
         uint32_t *__restrict__ x,
         uint32_t *__restrict__ min,
         uint32_t *__restrict__ max,
         uint32_t *__restrict__ count
         ) {
-#pragma omp parallel for default(shared) num_threads(24)
-    for (size_t j = 0; j < num; ++j)
-        n[j] = (1 << n[j]) - 1;
-
-    const uint32_t *__restrict__ p_a;
-    const uint32_t *__restrict__ p_b;
-    const uint32_t *__restrict__ p_n;
+    uint32_t *__restrict__ p_a;
+    uint32_t *__restrict__ p_b;
+    uint32_t *__restrict__ p_n;
     uint32_t *__restrict__ p_x;
     uint32_t *__restrict__ p_min;
     uint32_t *__restrict__ p_max;
     uint32_t *__restrict__ p_count;
+    p_a = (uint32_t *__restrict__)__builtin_assume_aligned(a, 32);
+    p_b = (uint32_t *__restrict__)__builtin_assume_aligned(b, 32);
+    p_n = (uint32_t *__restrict__)__builtin_assume_aligned(n, 32);
+    p_x = (uint32_t *__restrict__)__builtin_assume_aligned(x, 32);
+    p_min = (uint32_t *__restrict__)__builtin_assume_aligned(min, 32);
+    p_max = (uint32_t *__restrict__)__builtin_assume_aligned(max, 32);
+    p_count = (uint32_t *__restrict__)__builtin_assume_aligned(count, 32);
+
+    for (size_t j = 0; j < num; ++j)
+        p_n[j] = (1 << p_n[j]) - 1;
 
     uint32_t dist;
     /* loop tiling - main */
 #pragma omp parallel for default(shared) num_threads(24) \
-    private(dist, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
-    for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
-        p_a     = a + j1;
-        p_b     = b + j1;
-        p_x     = x + j1;
-        p_n     = n + j1;
-        p_min   = min + j1;
-        p_max   = max + j1;
-        p_count = count + j1;
-
+    private(dist) schedule(static)
+    for (size_t j1 = 0; j1 < BF * (num / BF); j1 += BF) {
         for (size_t i = 0; i < k; ++i) {
-            for (size_t j = 0; j < BF; ++j) {
+            for (size_t j = j1; j < j1 + BF; ++j) {
                 /* compute next value */
                 p_x[j] = (p_a[j] * p_x[j] + p_b[j]) & p_n[j];
 
@@ -75,16 +73,8 @@ void par_computation(
     }
 
     /* loop tiling - the rest */
-    size_t shift = BF * (num / BF);
-    p_a     = a + shift;
-    p_b     = b + shift;
-    p_x     = x + shift;
-    p_n     = n + shift;
-    p_min   = min + shift;
-    p_max   = max + shift;
-    p_count = count + shift;
     for (size_t i = 0; i < k; ++i) {
-        for (size_t j = 0; j < num % BF; ++j) {
+        for (size_t j = BF * (num / BF); j < num; ++j) {
             /* compute next value */
             p_x[j] = (p_a[j] * p_x[j] + p_b[j]) & p_n[j];
 
