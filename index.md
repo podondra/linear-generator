@@ -494,7 +494,7 @@ Kompilár kód nedokáže vektorizovat, a proto statické pole nepoužiji.
 
 ### cache parametry ###
 
-Pro lepsi vyuziti cache jsem naspal tento program:
+Pro lepší využití cache jsem naspal tento program:
 
     #include <stdio.h>
     #include <unistd.h>
@@ -512,8 +512,8 @@ Pro lepsi vyuziti cache jsem naspal tento program:
         return 0;
     }
 
-Vystupem je velikost stranky a vlastnisti L1, L2 a L3 cache pameti.
-A to velikost v bytech, associativita a velikost radky:
+Výstupem je velikost stránky a vlastnisti L1, L2 a L3 cache pamětí.
+A to velikost v bytech, associativita a velikost řádky:
 
     _SC_LEVEL1_DCACHE_SIZE	32768
     _SC_LEVEL1_DCACHE_ASSOC	8
@@ -525,60 +525,60 @@ A to velikost v bytech, associativita a velikost radky:
     _SC_LEVEL3_CACHE_ASSOC	20
     _SC_LEVEL3_CACHE_LINESIZE	64
 
-Mikroarchitektura nasich procesoru je Ivy Bridge. L1 a L2 cache pameti jsou
-tedy u kazdeho jadra a L3 pamet je sdilena.
+Mikroarchitektura našich procesorů je Ivy Bridge. L1 a L2 cache paměti jsou     
+tedy u každého jádra a L3 paměť je sdílená.
 
-Velikost L1 pameti je 32768 B a velikost radky je 64 B. Z toho plyne pocet
-radku 512 (\\(32768 / 64 = 512\\)). Program pouziva celkem 7 poli (a, b, n, x,
-min, max, count). Do L1 cache pameti by se tedy melo vyjet 73 cache radku
-kazdeho pole (\\(512 / 7 = 73\\)). Kazda radka L1 cache obashuje 16
-`uint32_t` cisel (\\(64 / 4 = 16\\)). Parametr BF by mel mit tedy hodnotu 1168.
-Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)).
+Velikost L1 paměti je 32768 B a velikost řádky je 64 B. Z toho plyne počet
+řádků 512 (\\(32768 / 64 = 512\\)). Program používá celkem 7 polí (a, b, n, x,
+min, max, count). Do L1 cache paměti by se tedy mělo vejít 73 cache řádků
+každého pole (\\(512 / 7 = 73\\)). Každá řádka L1 cache obashuje 16
+`uint32_t` čísel (\\(64 / 4 = 16\\)). Parametr BF by měl mít tedy hodnotu 1168.
+Počet cache řádků krát počet čísel v cache řádku (\\(73 * 16 = 1186\\)).
 
-To ale zrejme nefunguje viz graf nize.
+To ale zřejme nefunguje viz graf níže.
 
 ### volba parametru \\(BF\\) ###
 
 ![bfs](img/opt-bfs.svg)
 
-\\(BF = 16\\) funguje protoze nactu radek do L1 cache a pote co ho zpracuji uz
-ho nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
+\\(BF = 16\\) funguje, protože načtu řádek do L1 cache a poté, co ho zpracuji už
+ho nikdy nepotřebuji. Je tedy velice nepravděpodobné, že dojde k výpadkům.
 
-Datove vypadky pri vypoctenem \\(BF = 1186\\) jsou vyrazne vyssi nez pro nizsi
+Dátové výpadky při vypočteném \\(BF = 1186\\) jsou výrazně vyšší než pro nižší
 hodnoty parametru.
 
 ![bfs](img/opt-bfs-l1-all.svg)
 
-Nasleduji graf ukazuje ze L1 cache je nejlepe vyuzivana pri \\(BF = 16\\).
+Následující graf ukazuje, že L1 cache je nejlépe využívána při \\(BF = 16\\).
 
 ![bfs](img/opt-bfs-l1.svg)
 
-L2 cache ma naopak nejnizsi miss rate pro \\(BF = 1186\\).
-Rozhoduji je ale ze jeji
-casova slozitost a vyuziti L1 cache je nejhorsi ze vsech voleb parametru.
+L2 cache má naopak nejnižší miss rate pro \\(BF = 1186\\).
+Rozhodující je ale, že její
+časová složitost a využití L1 cache je nejhorší ze všech voleb parametru.
 
 ![bfs](img/opt-bfs-l2.svg)
 
-Na urovni L3 cache opet vede \\(BF = 16\\).
+Na úrovni L3 cache opět vede \\(BF = 16\\).
 
 ![bfs](img/opt-bfs-l3.svg)
 
 kapitola 3 (openmp)
 -----------------------
 
-Program nyni vyuziva moznosti jednoho jadra procesoru Xeon E5-2620 v2.
-Pouziva vektorove instrukce a dochazi k malo vypadkum L1 cache pameti.
-Ale architektura na ktere je program testovam ma 2 procesory a kazdy ma 6
-jader. Dalsim krokem optimalizaci je program paralelizovat.
+Program nyní využívá možnosti jednoho jádra procesoru Xeon E5-2620 v2.
+Používá vektorové instrukce a dochází k málo výpadkům L1 cache paměti.
+Ale architektura na které je program testovam má 2 procesory. Každý má 6
+jader. Dalším krokem optimalizací je program paralelizovat. 
 
 ### paralelizace hlavniho cyklu ###
 
-Zrejme je paralelizovat hlavni cyklus. Protoze program pouziva metodu _loop
-tiling_ je tato uprava jednoducha. Paralelizuji vnejsi cyklus. Kazde vlakno tedy
-spocita \\(BF\\) linearnich generatoru a kdyz skonci spocita dalsi cast.
-Dopocitani zbytku iteraci _loop tiling_ paralelizovat nema smysl, protoze pocet
-iteraci tohoto cyklu bude urcite mensi nez \\(BF = 16\\) a to je v porovnani s
-miliony linearnich generatoru pocitanych v hlavnim cyklu zanedbatelne.
+Zřejmé je paralelizovat hlavní cyklus. Protože program používá metodu _loop
+tiling_ je tato úprava jednoduchá. Paralelizuji vnější cyklus. Každé vlákno tedy
+spočítá \(BF\) lineárních generátorů a když skončí spočítá další část.
+Dopočítání zbytku iteraci _loop tiling_ paralelizovat nemá smysl, protože počet
+iteraci tohoto cyklu bude určitě menší než \(BF = 16\) a to je v porovnání s
+milióny lineárních generátorů počítaných v hlavním cyklu zanedbatelné. 
 
     uint32_t *__restrict__ p_a;
     uint32_t *__restrict__ p_b;
@@ -608,28 +608,30 @@ miliony linearnich generatoru pocitanych v hlavnim cyklu zanedbatelne.
 
 ### volba poctu vlaken ###
 
-V kodu vyse jsem zvolil pocet vlaken na 24.
-Jadra procesoru Xeon maji technologii
-hyperthreading. Na jednom jadre tedy mohou bezet dve vlakna zaroven. Nevyhodou
-muze byt neprokladani instrukci. To by znamenalo zpomalovani jednotlivych
-vlakem. Jelikoz nase architektura ma 12 jader dohromady s hyperthreadingem
-vychazi pocet vlaken 24. To potvrzuji i mereni zobrazena na grafu nize.
+V kódu výše jsem zvolil počet vláken na 24.
+Jádra procesoru Xeon mají technologii hyperthreading.
+Na jednom jádře tedy mohou běžet dvě vlákna zároveň.
+Nevýhodou může být neprokládani instrukcí.
+To by znamenalo zpomalování jednotlivých vlákem.
+Jelikož naše architektura má 12 jader,
+dohromady s hyperthreadingem vychází počet vláken 24.
+To potvrzují i měření zobrazena na grafu níže. 
 
 ![paralelizace](img/par-threads.svg)
 
-Graf porovnavajici nejlepsi sekvecni variantu a paralelizovanou variantu.
+Graf porovnávající nejlepší sekveční variantu a paralelizovanou variantu.
 
 ![paralelizace](img/par-vs-opt.svg)
 
 ### paralelizace cyklu pro vypocet pole \\(n\\) ###
+
+TODO
 
 Dale muze paralelizovat cyklus pro predvypocet hodnot pole \\(n\\).
 
     #pragma omp parallel for default(shared) num_threads(12)
     for (size_t j = 0; j < num; ++j)
         n[j] = (1 << n[j]) - 1;
-
-TODO
 
 kapitola 4
 ----------
