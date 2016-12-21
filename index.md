@@ -18,23 +18,25 @@ kapitola 1
 
 ### definice problému ###
 
-Mějme několik `G` daných
-lineárních generátorů, každý z nich je dán parametry `a`, `b`, `n`. Generátor
-vypočítává posloupnost `x[i] = (a * x[i - 1] + b) mod 2 ^ n`, kde `a` a `b`
-jsou kladná lichá čísla, `10 < n < 32` a `x[0] = 0`. Počet členů této
-posloupnosti je `k` (pro všechny generátory stejné). Úkolem je pro dané
-konstanty `c`, `d`, `e` (pro všechny generátory stejné), najít:
+Mějme několik \\(G\\) daných
+lineárních generátorů, každý z nich je dán parametry \\(a\\), \\(b\\), \\(n\\).
+Generátor vypočítává posloupnost
+\\(x\_i = (a * x\_{i - 1} + b) \space mod \space 2^n\\),
+kde \\(a\\) a \\(b\\) jsou kladná lichá čísla, \\(10 < n < 32\\)
+a \\(x\_0 = 0\\). Počet členů této
+posloupnosti je \\(k\\) (pro všechny generátory stejné). Úkolem je pro dané
+konstanty \\(c\\), \\(d\\), \\(e\\) (pro všechny generátory stejné), najít:
 
-1. kolikrát je pro daný generátor `x[i]` v intervalu `[c, d]`
+1. kolikrát je pro daný generátor \\(x\_i\\) v intervalu \\([c, d]\\)
 2. kolik je pro daný generátor minimální a maximální Hammingova vzdálenost
-    mezi `x[i]` a parametrem `e`
+    mezi \\(x\_i\\) a parametrem \\(e\\)
 
 ### popis sekvenčního algoritmu a jeho implementace ###
 
 Sekvenční algoritmus se skládá že dvou `for` cyklů. Vnější cyklus iteruje
-přes všechny lineární generátory `G`. `G` jsou uloženy ve
-dvourozměrném poli. V každém řádku je trojice `uint32_t` čísel `a`, `b` a
-`n`.
+přes všechny lineární generátory \\(G\\). \\(G\\) jsou uloženy ve
+dvourozměrném poli. V každém řádku je trojice `uint32_t` čísel \\(a\\), \\(b\\)
+a \\(n\\).
 
     /* for each linear generator */
     for (size_t i = 0; i < num; ++i) {
@@ -46,7 +48,7 @@ dvourozměrném poli. V každém řádku je trojice `uint32_t` čísel `a`, `b` 
         min = UINT32_MAX;
         max = 0;
 
-Vnitřní cyklus počítá a zkoumá jednotlivé členy posloupnosti `x[k]`
+Vnitřní cyklus počítá a zkoumá jednotlivé členy posloupnosti \\(x\_k\\)
 lineárního generátoru.
 
         for (size_t j = 0; j < k; ++j) {
@@ -74,7 +76,7 @@ lineárního generátoru.
 #### popis implementovaných funkcí ####
 
 1. `lin_gen()` počítá následující člen posloupnosti. Pro umocnění
-    `2 ^ n` používám operaci bitový posun.
+    \\(2 ^ n\\) používám operaci bitový posun.
 
         uint32_t lin_gen(uint32_t a, uint32_t x, uint32_t b, uint32_t n) {
             /* don't care about overflow */
@@ -82,14 +84,15 @@ lineárního generátoru.
         }
 
 2. `is_in_interval()` provede dvě porovnání a vrátí `true`
-    pokud je `x` v zadaném intervalu jinak `false`.
+    pokud je \\(x\\) v zadaném intervalu jinak `false`.
 
         bool is_in_interval(uint32_t x, uint32_t start, uint32_t end) {
             return start <= x && x <= end;
         }
 
 3. `hamming_distance()` implementuje algoritmus pro získání
-    Hammingovy vzdálenosti z bitového or (`^`) proměnných `x` a `e`
+    Hammingovy vzdálenosti z bitového or (\\(\vee\\)) proměnných \\(x\\)
+    a \\(e\\)
     postupným odebíráním bitů ve `while` cyklu. Tato implementace je datově
     závislá. Přesto budu generovat data náhodně. Po optimalizacích bude
     tato závislost odstraněna.
@@ -119,10 +122,11 @@ přepínače:
 
 ### naměřené hodnoty časově složitost ###
 
-Doba výpočtu záleží na `k` a počtu linearních generátorů. Při zvětšování `k`
-nedochází k zvyšování potřebné paměti. Tedy není ovlivněno využití cache
+Doba výpočtu záleží na \\(k\\) a počtu linearních generátorů. Při zvětšování
+\\(k\\) nedochází k zvyšování potřebné paměti. Tedy není ovlivněno využití cache
 paměti. Naopak zvyšování počtu lineárních generátorů má vliv na cache paměti.
-Měřím s konstatním `k = 100` a měnícím se počtem lineárních generátorů `n`.
+Měřím s konstatním \\(k = 100\\) a měnícím se počtem lineárních generátorů
+\\(n\\).
 
 ![časová složitost sekvenční implementace](img/seq.svg)
 
@@ -155,13 +159,13 @@ Tento algoritmus vypočítá Hammingovu vzdálenost 32 bitového integeru
 Program nevyužívá vektorových instrukcí. Podporu těch instrukcí
 při kompilaci zapneme přepínačem `-mavx`.
 
-V generování vektorových instrukcí brání kompilátorů datová závislost `x` na
+V generování vektorových instrukcí brání kompilátorů datová závislost \\(x\\) na
 předchozí iteraci:
 
     x = ((a * x + b) % (2 << (n - 1)));
 
 Transformace _loop interchange_ odstraní tuto závislost. Vnější cyklus bude
-iterovat přes členy posloupnosti `x[i]` a vnitřní cyklus přes všechny
+iterovat přes členy posloupnosti \\(x\_i\\) a vnitřní cyklus přes všechny
 lineární generátory.
 
 Výsledný kód viz níže. Parametry linernich generátorů ukládám v
@@ -242,7 +246,7 @@ Kompilátor stále nemůže program vektorizovat kvůli nepodporované operaci.
 
     not vectorized: relevant stmt not supported: _30 = 2 << _29;
 
-V kódu se zbytečně dokola počítá hodnota `2 ^ n`, která se v průběhu výpočtu
+V kódu se zbytečně dokola počítá hodnota \\(2 ^ n\\), která se v průběhu výpočtu
 nemění. Pomoci transformace _loop fision_ ji vypočítám před hlavními
 `for` cykly.
 
@@ -372,7 +376,7 @@ Takto upravený program dosahuje využití cache na grafu dole.
 
 V ideálním případě je potřeba optimalizovat program tak, aby do L1 cache
 nahrával správné množství lineárních generátorů a s nimi provedl
-`k` iterací bez L1 výpadku.
+\\(k\\) iterací bez L1 výpadku.
 
 Technikou _loop tiling_ mužů tohoto částečně dosáhnout.
 
@@ -406,14 +410,15 @@ paměti vejde.
 Použití pointerove aritmetiky zaručí, že vnitřní cykly mohou iterovat od 0.
 To umožní _auto-vektorizaci_ obou nejvnitřnějších cyklu.
 
-Problém je určit hodnotu `BF`. Nepodařilo se mi zjistit velikost cache paměti
+Problém je určit hodnotu \\(BF\\).
+Nepodařilo se mi zjistit velikost cache paměti
 naší architekturi. Předpokládám velikost 512 řádek a stupeň asociativity
 2 (jak je uvedeno v přednášce). Můj program použivá 7 polí, které bude číst po
-blocích. To znamená že může nahrát `512 * 2 = 1024` bloku. `1024 / 7 =
-146.2857` je kandidát pro `BF`. Hodnota snížím na 144, aby byla dělitelná 4
-(výhodné pro vektorizaci).
+blocích. To znamená že může nahrát \\(512 * 2 = 1024\\) bloku.
+\\(1024 / 7 = 146.2857\\) je kandidát pro \\(BF\\). Hodnota snížím na 144,
+aby byla dělitelná 4 (výhodné pro vektorizaci).
 
-Měřením se ukázalo že nejvýhodnější je `BF = 72` (`#define BF 72` v kódu):
+Měřením se ukázalo že nejvýhodnější je \\(BF = 72\\) (`#define BF 72` v kódu):
 
 ![cache volba BF](img/opt-cache-bf.svg)
 
@@ -528,26 +533,40 @@ radku 512 (\\(32768 / 64 = 512\\)). Program pouziva celkem 7 poli (a, b, n, x,
 min, max, count). Do L1 cache pameti by se tedy melo vyjet 73 cache radku
 kazdeho pole (\\(512 / 7 = 73\\)). Kazda radka L1 cache obashuje 16
 `uint32_t` cisel (\\(64 / 4 = 16\\)). Parametr BF by mel mit tedy hodnotu 1168.
-Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)). Cislo
-zmensim na 1152 kvuli rezerve.
+Pocet cache radku krat pocet cisel v cache radku (\\(73 * 16 = 1186\\)).
 
-To ale zrejme nefunguje viz graf.
+To ale zrejme nefunguje viz graf nize.
 
-![bf = 1152](img/opt-cache-l1.svg)
+### volba parametru \\(BF\\) ###
 
-Zvolim tedy pristup spracovani jedne cache line v jedne iteraci rozbale cyklu.
-Velikost radky je 64 B. Tzn. 16 `uint32_t` v jedne cache line. Nastavim `BF` na
-hodnotu 16. Tato zmena program zrychli.
+![bfs](img/opt-bfs.svg)
 
-![bf = 16](img/opt-cache-linesize.svg)
+\\(BF = 16\\) funguje protoze nactu radek do L1 cache a pote co ho zpracuji uz
+ho nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
 
-`BF = 16` funguje protoze nactu radek do L1 cache a pote co ho zpracuji uz ho
-nikdy nepotrebuji. Je tedy velice nepravdepodobne, ze dojde k vypadkum.
+Datove vypadky pri vypoctenem \\(BF = 1186\\) jsou vyrazne vyssi nez pro nizsi
+hodnoty parametru.
+
+![bfs](img/opt-bfs-l1-all.svg)
+
+Nasleduji graf ukazuje ze L1 cache je nejlepe vyuzivana pri \\(BF = 16\\).
+
+![bfs](img/opt-bfs-l1.svg)
+
+L2 cache ma naopak nejnizsi miss rate pro \\(BF = 1186\\).
+Rozhoduji je ale ze jeji
+casova slozitost a vyuziti L1 cache je nejhorsi ze vsech voleb parametru.
+
+![bfs](img/opt-bfs-l2.svg)
+
+Na urovni L3 cache opet vede \\(BF = 16\\).
+
+![bfs](img/opt-bfs-l3.svg)
 
 kapitola 3 (openmp)
 -----------------------
 
-Program nyni vyuziva spravne moznosti jednoho jadra procesoru Xeon E5-2620 v2.
+Program nyni vyuziva moznosti jednoho jadra procesoru Xeon E5-2620 v2.
 Pouziva vektorove instrukce a dochazi k malo vypadkum L1 cache pameti.
 Ale architektura na ktere je program testovam ma 2 procesory a kazdy ma 6
 jader. Dalsim krokem optimalizaci je program paralelizovat.
@@ -556,61 +575,59 @@ jader. Dalsim krokem optimalizaci je program paralelizovat.
 
 Zrejme je paralelizovat hlavni cyklus. Protoze program pouziva metodu _loop
 tiling_ je tato uprava jednoducha. Paralelizuji vnejsi cyklus. Kazde vlakno tedy
-spocita `BF` linearnich generatoru a kdyz skonci spocita dalsi cast. Dopocitani
-zbytku iteraci _loop tiling_ paralelizovat nema smysl, protoze pocet iteraci
-tohoto cyklu bude urcite mensi nez `BF`. To znamena ze rezije na vytvoreni
-vlaken by byla zbytecne velika.
+spocita \\(BF\\) linearnich generatoru a kdyz skonci spocita dalsi cast.
+Dopocitani zbytku iteraci _loop tiling_ paralelizovat nema smysl, protoze pocet
+iteraci tohoto cyklu bude urcite mensi nez \\(BF = 16\\) a to je v porovnani s
+miliony linearnich generatoru pocitanych v hlavnim cyklu zanedbatelne.
 
-    const uint32_t *__restrict__ p_a;
-    const uint32_t *__restrict__ p_b;
-    const uint32_t *__restrict__ p_n;
+    uint32_t *__restrict__ p_a;
+    uint32_t *__restrict__ p_b;
+    uint32_t *__restrict__ p_n;
     uint32_t *__restrict__ p_x;
     uint32_t *__restrict__ p_min;
     uint32_t *__restrict__ p_max;
     uint32_t *__restrict__ p_count;
+    p_a = (uint32_t *__restrict__)__builtin_assume_aligned(a, 32);
+    p_b = (uint32_t *__restrict__)__builtin_assume_aligned(b, 32);
+    p_n = (uint32_t *__restrict__)__builtin_assume_aligned(n, 32);
+    p_x = (uint32_t *__restrict__)__builtin_assume_aligned(x, 32);
+    p_min = (uint32_t *__restrict__)__builtin_assume_aligned(min, 32);
+    p_max = (uint32_t *__restrict__)__builtin_assume_aligned(max, 32);
+    p_count = (uint32_t *__restrict__)__builtin_assume_aligned(count, 32);
 
-    #pragma omp parallel for default(shared) num_threads(12) \
-        private(dist, p_a, p_b, p_x, p_n, p_min, p_max, p_count)
-    for (size_t j1 = 0; j1 < num - BF; j1 += BF) {
-        p_a     = a + j1;
-        p_b     = b + j1;
-        p_x     = x + j1;
-        p_n     = n + j1;
-        p_min   = min + j1;
-        p_max   = max + j1;
-        p_count = count + j1;
+    for (size_t j = 0; j < num; ++j)
+        p_n[j] = (1 << p_n[j]) - 1;
 
+    uint32_t dist;
+    /* loop tiling - main */
+    #pragma omp parallel for default(shared) num_threads(24) \
+    private(dist) schedule(static)
+    for (size_t j1 = 0; j1 < BF * (num / BF); j1 += BF) {
         for (size_t i = 0; i < k; ++i) {
-            for (size_t j = 0; j < BF; ++j) {
+            for (size_t j = j1; j < j1 + BF; ++j) {
 
-Pocet vlakem nastavim na 12, protoze pocet jader je 12 (viz vyse). Kompilaci
-provedeme s prepinacem `-fopenmp`. Paralelizce
-program zrychli asi 6 krat.
+### volba poctu vlaken ###
 
-![paralelizace](img/par-basic.svg)
+V kodu vyse jsem zvolil pocet vlaken na 24.
+Jadra procesoru Xeon maji technologii
+hyperthreading. Na jednom jadre tedy mohou bezet dve vlakna zaroven. Nevyhodou
+muze byt neprokladani instrukci. To by znamenalo zpomalovani jednotlivych
+vlakem. Jelikoz nase architektura ma 12 jader dohromady s hyperthreadingem
+vychazi pocet vlaken 24. To potvrzuji i mereni zobrazena na grafu nize.
 
-### paralelizace cyklu pro vypocet pole `n` ###
+![paralelizace](img/par-threads.svg)
 
-Dale muze paralelizovat cyklus pro predvypocet hodnot pole `n`.
+Graf porovnavajici nejlepsi sekvecni variantu a paralelizovanou variantu.
+
+![paralelizace](img/par-vs-opt.svg)
+
+### paralelizace cyklu pro vypocet pole \\(n\\) ###
+
+Dale muze paralelizovat cyklus pro predvypocet hodnot pole \\(n\\).
 
     #pragma omp parallel for default(shared) num_threads(12)
     for (size_t j = 0; j < num; ++j)
         n[j] = (1 << n[j]) - 1;
-
-![paralelni n](img/par-n.svg)
-
-TODO
-
-### zmena poctu vlaken ###
-
-Program pracuje paralelne s 12 vlanky. Jadra procesoru Xeon maji technologii
-hyperthreading. Na jednom jadre tedy mohou bezet dve vlakna zaroven. Nevyhodou
-muze byt neprokladani instrukci. To by znamenalo zpomalovani jednotlivych
-vlakem. Vyzkousim tedy program s 24 vlakny (`num_threads(24)`)
-
-TODO graf a komentar.
-
-### zarovnani pointeru ###
 
 TODO
 
