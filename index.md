@@ -571,7 +571,7 @@ Používá vektorové instrukce a dochází k málo výpadkům L1 cache paměti.
 Ale architektura na které je program testovam má 2 procesory. Každý má 6
 jader. Dalším krokem optimalizací je program paralelizovat. 
 
-### paralelizace hlavniho cyklu ###
+### paralelizace hlavního cyklu ###
 
 Zřejmé je paralelizovat hlavní cyklus. Protože program používá metodu _loop
 tiling_ je tato úprava jednoduchá. Paralelizuji vnější cyklus. Každé vlákno tedy
@@ -606,7 +606,7 @@ milióny lineárních generátorů počítaných v hlavním cyklu zanedbatelné.
         for (size_t i = 0; i < k; ++i) {
             for (size_t j = j1; j < j1 + BF; ++j) {
 
-### volba poctu vlaken ###
+### volba počtu vláken ###
 
 V kódu výše jsem zvolil počet vláken na 24.
 Jádra procesoru Xeon mají technologii hyperthreading.
@@ -622,6 +622,30 @@ To potvrzují i měření zobrazena na grafu níže.
 Graf porovnávající nejlepší sekveční variantu a paralelizovanou variantu.
 
 ![paralelizace](img/par-vs-opt.svg)
+
+### openmp `schedule` ###
+
+Důležitou parametrizací paralelizace `for` cyklů v openmp je nastavení
+`schedule`. Teoreticky by měli všechny iterace hlavního cyklu trvat stejný počet
+instrukcí, protože nezávisí na datech.
+
+Původně používám v programu nejjednodušší nastavení `static` které rozdělí
+rovnoměrně iterace mezi vlákna. Z grafu je vidět že je nejlepší.
+Jakékoliv jiné rozdělování je horší nebo přinese větší režiji.
+
+![static](img/par-static.svg)
+
+Další možností je nastavení `dynamic`.
+To je pro některé instance dokonce lepší než `static`,
+ale při \\(n = 250000000\\) nastává velké zhoršení.
+Varianta `static` je tedy statbilnější, a tím pádem lepší.
+
+![dynamic](img/par-dynamic.svg)
+
+Nakonec vyzkouším nastavení `auto`. Tedy openmp samo rozhodne, co použije.
+Grafy jsou téměř shodné, protože zřejme openmp zvolilo také nastavení `static`.
+
+![auto](img/par-auto.svg)
 
 ### paralelizace cyklu pro vypocet pole \\(n\\) ###
 
