@@ -647,19 +647,13 @@ Grafy jsou téměř shodné, protože zřejme openmp zvolilo také nastavení `s
 
 ![auto](img/par-auto.svg)
 
-### paralelizace cyklu pro vypocet pole \\(n\\) ###
-
-TODO
-
-Dale muze paralelizovat cyklus pro predvypocet hodnot pole \\(n\\).
-
-    #pragma omp parallel for default(shared) num_threads(12)
-    for (size_t j = 0; j < num; ++j)
-        n[j] = (1 << n[j]) - 1;
-
 kapitola 4
 ----------
 
 ### závěr ###
 
-TODO
+Takto zadaný problém linearních generátorů je velice dobře optimalizovatelný
+a parelelizovatelný. Z grafu níže je vidět, že lze dosáhnout velkého zrychlení.
+V průměru až 140-ti násobného.
+
+![conclusion](img/conclusion.svg)
