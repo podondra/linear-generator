@@ -30,6 +30,6 @@
 # Do not change.
 #$ -q gpu_long.q
 
-for N in `seq 10000000 10000000 250000000`; do
+for N in `seq 150000000 10000000 250000000`; do
     ../lg --par -k 100 -n "$N" > /dev/null
 done
